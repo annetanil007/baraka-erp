@@ -1,0 +1,144 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { Download, Plus, Search } from "lucide-react";
+import { useLocalStorage } from "@/lib/useLocalStorage";
+
+export type ModuleColumn = {
+  key: string;
+  label: string;
+  mono?: boolean;
+  numeric?: boolean;
+};
+
+export type ModuleStat = {
+  label: string;
+  value: string;
+  tone?: "danger" | "warning" | "success" | "info";
+};
+
+type ModulePageProps = {
+  title: string;
+  description: string;
+  actionLabel: string;
+  columns: ModuleColumn[];
+  rows: Record<string, string | number>[];
+  stats: ModuleStat[];
+};
+
+const toneColors = {
+  danger: "var(--color-danger)",
+  warning: "var(--color-warning)",
+  success: "var(--color-success)",
+  info: "var(--color-info)",
+};
+
+function statusClass(value: string | number) {
+  const status = String(value).toLowerCase();
+  if (["active", "approved", "paid", "received", "ok", "completed"].includes(status)) return "badge-success";
+  if (["critical", "overdue", "rejected", "inactive"].includes(status)) return "badge-danger";
+  if (["pending", "under review", "low stock", "submitted", "draft", "scheduled"].includes(status)) return "badge-warning";
+  if (["in transit", "transfer opportunity", "partially received"].includes(status)) return "badge-info";
+  return "badge-muted";
+}
+
+export default function ModulePage({ title, description, actionLabel, columns, rows, stats }: ModulePageProps) {
+  const [records, setRecords] = useLocalStorage(`baraka:${title.toLowerCase().replaceAll(" ", "-")}`, rows);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("All statuses");
+  const [dialog, setDialog] = useState<"create" | "view" | null>(null);
+  const [selectedRow, setSelectedRow] = useState<Record<string, string | number> | null>(null);
+  const statusOptions = Array.from(new Set(records.map((row) => String(row.status ?? "")).filter(Boolean)));
+  const filteredRows = useMemo(() => records.filter((row) => {
+    const matchesQuery = Object.values(row).some((value) => String(value).toLowerCase().includes(query.toLowerCase()));
+    const matchesStatus = status === "All statuses" || String(row.status) === status;
+    return matchesQuery && matchesStatus;
+  }), [query, records, status]);
+
+  const createRecord = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const name = String(form.get("name") || "New record");
+    const firstKey = columns[0]?.key || "id";
+    const nextRecord: Record<string, string | number> = { [firstKey]: `${title.slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-6)}`, [columns[1]?.key || "name"]: name };
+    if (columns.some((column) => column.key === "status")) nextRecord.status = "Draft";
+    setRecords((current) => [nextRecord, ...current]);
+    setDialog(null);
+  };
+
+  const exportRows = () => {
+    const csv = [columns.map((column) => column.label).join(","), ...filteredRows.map((row) => columns.map((column) => JSON.stringify(row[column.key] ?? "")).join(","))].join("\n");
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    link.download = `${title.toLowerCase().replaceAll(" ", "-")}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
+  return (
+    <div>
+      <div className="page-header module-header">
+        <div>
+          <h2 className="page-title">{title}</h2>
+          <p className="page-description">{description}</p>
+        </div>
+        <button className="btn btn-primary btn-sm" onClick={() => setDialog("create")}><Plus size={13} /> {actionLabel}</button>
+      </div>
+
+      <div className="kpi-grid module-stats">
+        {stats.map((stat) => (
+          <div className="kpi-card" key={stat.label}>
+            <div className="kpi-label">{stat.label}</div>
+            <div className="kpi-value" style={stat.tone ? { color: toneColors[stat.tone] } : undefined}>{stat.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="toolbar module-toolbar">
+        <div className="search-bar module-search">
+          <Search size={14} style={{ color: "var(--color-text-muted)" }} />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${title.toLowerCase()}...`} />
+        </div>
+        {statusOptions.length > 0 && (
+          <select className="form-input" value={status} onChange={(event) => setStatus(event.target.value)}>
+            <option>All statuses</option>
+            {statusOptions.map((option) => <option key={option}>{option}</option>)}
+          </select>
+        )}
+        <button className="btn btn-secondary btn-sm" title="Export current records" onClick={exportRows}><Download size={13} /> Export</button>
+        <span className="module-result-count">{filteredRows.length} of {records.length} records</span>
+      </div>
+
+      <div className="card">
+        <div className="table-container">
+          <table className="data-table">
+            <thead><tr>{columns.map((column) => <th key={column.key}>{column.label}</th>)}<th>Actions</th></tr></thead>
+            <tbody>
+              {filteredRows.map((row, index) => (
+                <tr key={String(row.id ?? index)}>
+                  {columns.map((column) => {
+                    const value = row[column.key] ?? "-";
+                    const isStatus = column.key === "status" || column.key === "risk";
+                    return <td key={column.key} className={column.mono ? "mono-cell" : ""} style={column.numeric ? { fontWeight: 600 } : undefined}>
+                      {isStatus ? <span className={`badge ${statusClass(value)}`}>{value}</span> : value}
+                    </td>;
+                  })}
+                  <td><button className="btn btn-secondary btn-sm" onClick={() => { setSelectedRow(row); setDialog("view"); }}>View</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filteredRows.length === 0 && <div className="empty-state"><Search size={20} /><p>No records match your filters.</p></div>}
+        </div>
+      </div>
+      {dialog && (
+        <div className="dialog-backdrop" role="presentation" onClick={() => setDialog(null)}>
+          <div className="dialog" role="dialog" aria-modal="true" aria-label={dialog === "create" ? actionLabel : "Record details"} onClick={(event) => event.stopPropagation()}>
+            <div className="dialog-header"><div><div className="card-title">{dialog === "create" ? actionLabel : "Record details"}</div><div className="card-subtitle">{dialog === "create" ? `Add a new record to ${title.toLowerCase()}.` : "Review the latest record information."}</div></div><button className="btn btn-ghost btn-sm" onClick={() => setDialog(null)}>Close</button></div>
+            {dialog === "create" ? <form className="dialog-body" onSubmit={createRecord}><div className="form-group"><label className="form-label">Name or reference</label><input name="name" className="form-input" placeholder="Enter a name or reference" autoFocus required /></div><div className="form-group"><label className="form-label">Notes</label><textarea name="notes" className="form-input" rows={3} placeholder="Add optional context" /></div><div className="dialog-actions"><button type="button" className="btn btn-secondary" onClick={() => setDialog(null)}>Cancel</button><button className="btn btn-primary" type="submit">Save record</button></div></form> : <div className="dialog-body">{selectedRow && Object.entries(selectedRow).map(([key, value]) => <div className="eval-row" key={key}><span className="eval-label">{key}</span><span className="eval-value">{value}</span></div>)}<div className="dialog-actions"><button className="btn btn-primary" onClick={() => setDialog(null)}>Done</button></div></div>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

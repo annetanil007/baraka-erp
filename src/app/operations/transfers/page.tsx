@@ -1,15 +1,5 @@
+import ModulePage from "@/components/ModulePage";
+
 export default function Page() {
-  return (
-    <div>
-      <div className="page-header">
-        <h2 className="page-title">Inventory Transfers</h2>
-        <p className="page-description">Inter-branch stock transfers and transfer recommendations.</p>
-      </div>
-      <div className="card">
-        <div className="card-body" style={{ padding: 40, textAlign: "center", color: "var(--color-text-muted)", fontSize: 13 }}>
-          This module is available in the full implementation.
-        </div>
-      </div>
-    </div>
-  );
+  return <ModulePage title="Inventory Transfers" description="Move stock between branches with a complete audit trail." actionLabel="Create transfer" stats={[{ label: "In transit", value: "7", tone: "info" }, { label: "Awaiting dispatch", value: "3", tone: "warning" }, { label: "Units moved this month", value: "1,284" }, { label: "On-time delivery", value: "96.2%", tone: "success" }]} columns={[{ key: "id", label: "Transfer", mono: true }, { key: "from", label: "From" }, { key: "to", label: "To" }, { key: "items", label: "Items", numeric: true }, { key: "requested", label: "Requested by" }, { key: "status", label: "Status" }]} rows={[{ id: "TRF-2026-00128", from: "Main Warehouse", to: "Branch B", items: 14, requested: "Mariam Al Zaabi", status: "In Transit" }, { id: "TRF-2026-00127", from: "Branch A", to: "Main Warehouse", items: 8, requested: "Khalid Hassan", status: "Completed" }, { id: "TRF-2026-00126", from: "Main Warehouse", to: "Branch A", items: 22, requested: "Ahmed Al Mansouri", status: "Awaiting dispatch" }, { id: "TRF-2026-00125", from: "Branch B", to: "Head Office", items: 4, requested: "Omar Al Nouri", status: "Draft" }]} />;
 }

@@ -2,6 +2,7 @@ import { mockExceptions } from "@/lib/mock-data";
 import { formatDateTime } from "@/lib/utils";
 import Link from "next/link";
 import { Filter, Download } from "lucide-react";
+import ActionButton from "@/components/ActionButton";
 
 const PRIORITY_CLASS: Record<string, string> = {
   Critical: "priority-critical", High: "priority-high",
@@ -23,12 +24,8 @@ export default function ExceptionsPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn btn-secondary btn-sm">
-            <Filter size={13} /> Filter
-          </button>
-          <button className="btn btn-secondary btn-sm">
-            <Download size={13} /> Export
-          </button>
+          <ActionButton label="Filter exceptions"><Filter size={13} /> Filter</ActionButton>
+          <ActionButton label="Export exceptions"><Download size={13} /> Export</ActionButton>
         </div>
       </div>
 

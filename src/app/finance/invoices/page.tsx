@@ -1,6 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import { mockInvoices } from "@/lib/mock-data";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { Plus, AlertCircle } from "lucide-react";
+import BillScanner from "@/components/BillScanner";
+import { useLocalStorage } from "@/lib/useLocalStorage";
+import ActionButton from "@/components/ActionButton";
 
 const RISK_CLASS: Record<string, string> = {
   Critical: "priority-critical", High: "priority-high",
@@ -12,7 +18,13 @@ const STATUS_CLASS: Record<string, string> = {
 };
 
 export default function InvoicesPage() {
-  const flagged = mockInvoices.filter((inv) => inv.riskLevel === "Elevated" || inv.riskLevel === "High");
+  const [invoices, setInvoices] = useLocalStorage("baraka:invoices", mockInvoices);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const flagged = invoices.filter((inv) => inv.riskLevel === "Elevated" || inv.riskLevel === "High");
+  const saveBill = (bill: { supplier: string; invoiceNumber: string; amount: string }) => {
+    setInvoices((current) => [{ id: bill.invoiceNumber, supplier: bill.supplier, amount: Number(bill.amount) || 0, poRef: "Pending match", status: "Pending", riskLevel: "Medium", createdAt: new Date().toISOString() }, ...current]);
+    setScannerOpen(false);
+  };
 
   return (
     <div>
@@ -23,8 +35,10 @@ export default function InvoicesPage() {
             Supplier invoices with validation status. Invoices are compared against purchase orders automatically.
           </p>
         </div>
-        <button className="btn btn-primary btn-sm"><Plus size={13} /> Record Invoice</button>
+        <button className="btn btn-primary btn-sm" onClick={() => setScannerOpen((current) => !current)}><Plus size={13} /> Scan Bill</button>
       </div>
+
+      {scannerOpen && <BillScanner onSaved={saveBill} />}
 
       {flagged.length > 0 && (
         <div className="alert-banner danger" style={{ marginBottom: 20 }}>
@@ -50,7 +64,7 @@ export default function InvoicesPage() {
               </tr>
             </thead>
             <tbody>
-              {mockInvoices.map((inv) => (
+              {invoices.map((inv) => (
                 <tr key={inv.id}>
                   <td style={{ fontFamily: "monospace", fontSize: 12 }}>{inv.id}</td>
                   <td style={{ fontWeight: 500 }}>{inv.supplier}</td>
@@ -69,9 +83,9 @@ export default function InvoicesPage() {
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button className="btn btn-secondary btn-sm">View</button>
+                      <ActionButton label={`View ${inv.id}`} />
                       {inv.status === "Pending" && (
-                        <button className="btn btn-accent btn-sm">Approve</button>
+                        <ActionButton label={`Approve ${inv.id}`} className="btn btn-accent btn-sm" />
                       )}
                     </div>
                   </td>

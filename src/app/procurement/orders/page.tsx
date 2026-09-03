@@ -1,6 +1,7 @@
 import { mockPurchaseOrders } from "@/lib/mock-data";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { Plus, AlertCircle } from "lucide-react";
+import ActionButton from "@/components/ActionButton";
 
 const RISK_CLASS: Record<string, string> = {
   Critical: "priority-critical", High: "priority-high",
@@ -21,7 +22,7 @@ export default function PurchaseOrdersPage() {
           <h2 className="page-title">Purchase Orders</h2>
           <p className="page-description">Active and recent purchase orders with validation and risk status.</p>
         </div>
-        <button className="btn btn-primary btn-sm"><Plus size={13} /> New Purchase Order</button>
+        <ActionButton label="New purchase order" className="btn btn-primary btn-sm"><Plus size={13} /> New Purchase Order</ActionButton>
       </div>
 
       {flagged.length > 0 && (
@@ -64,7 +65,7 @@ export default function PurchaseOrdersPage() {
                     {formatDateTime(po.createdAt)}
                   </td>
                   <td>
-                    <button className="btn btn-secondary btn-sm">View</button>
+                    <ActionButton label={`View ${po.id}`} />
                   </td>
                 </tr>
               ))}

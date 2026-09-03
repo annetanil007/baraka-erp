@@ -1,7 +1,8 @@
 import { mockKPIs, mockExceptions, mockRecentActivity, mockApprovals } from "@/lib/mock-data";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
-import { AlertTriangle, Clock, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
+import { AlertTriangle, Clock, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import AnalyticsCharts from "@/components/AnalyticsCharts";
 
 const PRIORITY_COLOR: Record<string, string> = {
   Critical: "critical", High: "high", Medium: "medium", Low: "low",
@@ -19,6 +20,11 @@ export default function DashboardPage() {
         <p className="page-description">
           Summary of current operational status, exceptions and pending actions.
         </p>
+      </div>
+
+      <div className="operational-pulse" aria-label="Operational system status">
+        <div className="pulse-status"><span className="pulse-dot" /><div><strong>Control plane operational</strong><span>Last sync 10:42:18 · Head Office</span></div></div>
+        <div className="pulse-metrics"><span><b>99.98%</b> uptime</span><span><b>4</b> queues monitored</span><span><b>0</b> critical outages</span></div>
       </div>
 
       {/* KPI Strip */}
@@ -48,7 +54,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="kpi-card">
-          <div className="kpi-label">Today's Revenue</div>
+          <div className="kpi-label">Today&apos;s Revenue</div>
           <div className="kpi-value">{formatCurrency(mockKPIs.todaysRevenue)}</div>
           <div className="kpi-sub">
             <span className="kpi-trend-up" style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 12 }}>
@@ -92,6 +98,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      <AnalyticsCharts />
 
       {/* Two-column main area */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 20 }}>

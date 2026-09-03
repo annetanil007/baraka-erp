@@ -1,5 +1,6 @@
 import { mockExceptions } from "@/lib/mock-data";
 import Link from "next/link";
+import ActionButton from "@/components/ActionButton";
 
 export default function ReviewsPage() {
   const underReview = mockExceptions.filter((e) => e.status === "Under Review" || e.status === "Monitoring");
@@ -42,7 +43,7 @@ export default function ReviewsPage() {
                     <Link href={`/control/exceptions/${ex.id}`} className="btn btn-secondary btn-sm">
                       View Details
                     </Link>
-                    <button className="btn btn-primary btn-sm">Complete Review</button>
+                    <ActionButton label={`Complete review for ${ex.id}`} className="btn btn-primary btn-sm" />
                   </div>
                 </div>
               </div>

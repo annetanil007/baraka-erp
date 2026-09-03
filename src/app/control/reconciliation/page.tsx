@@ -1,8 +1,14 @@
+"use client";
+
+import { useState } from "react";
 import { mockPurchaseOrders } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
 import { GitMerge, AlertCircle } from "lucide-react";
 
 export default function ReconciliationPage() {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [assignedReviewers, setAssignedReviewers] = useState<Record<string, string>>({});
+  const [message, setMessage] = useState("");
   // Items with discrepancies
   const discrepancies = mockPurchaseOrders.filter(
     (po) => po.orderedQty !== po.receivedQty || po.receivedQty !== po.invoicedQty
@@ -119,15 +125,17 @@ export default function ReconciliationPage() {
                     )}
                   </div>
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button className="btn btn-secondary btn-sm">View Records</button>
-                    <button className="btn btn-accent btn-sm">Assign Reviewer</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => setExpandedId(expandedId === po.id ? null : po.id)}>{expandedId === po.id ? "Hide Records" : "View Records"}</button>
+                    <button className="btn btn-accent btn-sm" onClick={() => { setAssignedReviewers((current) => ({ ...current, [po.id]: "Finance Manager" })); setMessage(`Finance Manager assigned to ${po.id}.`); }}>{assignedReviewers[po.id] ? "Reviewer Assigned" : "Assign Reviewer"}</button>
                   </div>
                 </div>
+                {expandedId === po.id && <div className="reconciliation-detail"><div><span>Purchase order</span><strong>{po.id}</strong></div><div><span>Ordered</span><strong>{po.orderedQty} units</strong></div><div><span>Goods receipt</span><strong>{po.receivedQty} units</strong></div><div><span>Supplier invoice</span><strong>{po.invoicedQty} units</strong></div><div><span>Value under review</span><strong>{formatCurrency(po.amount)}</strong></div><div><span>Assigned reviewer</span><strong>{assignedReviewers[po.id] || "Not assigned"}</strong></div></div>}
               </div>
             </div>
           );
         })}
       </div>
+      {message && <div className="toast" role="status">{message}<button type="button" onClick={() => setMessage("")}>Dismiss</button></div>}
     </div>
   );
 }

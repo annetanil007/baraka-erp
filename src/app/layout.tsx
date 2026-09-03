@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
+import { LanguageProvider } from "@/components/LanguageProvider";
 
 export const metadata: Metadata = {
-  title: "Enterprise Management & Control Platform",
+  title: "Baraka | Enterprise Operations Platform",
   description: "Unified enterprise platform for operations, finance, procurement, inventory and control management.",
 };
 
@@ -12,13 +13,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <div className="app-shell">
-          <Sidebar />
-          <div className="main-content">
-            <Topbar />
-            <div className="page-body">{children}</div>
+        <LanguageProvider>
+          <div className="app-shell">
+            <Sidebar />
+            <div className="main-content">
+              <Topbar />
+              <div className="page-body">{children}</div>
+            </div>
           </div>
-        </div>
+        </LanguageProvider>
       </body>
     </html>
   );

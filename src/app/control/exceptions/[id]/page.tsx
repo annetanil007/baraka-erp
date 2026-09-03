@@ -2,7 +2,8 @@ import { mockExceptions } from "@/lib/mock-data";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, AlertTriangle, CheckCircle, UserPlus } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
+import ExceptionActions from "@/components/ExceptionActions";
 
 export default async function ExceptionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -40,8 +41,7 @@ export default async function ExceptionDetailPage({ params }: { params: Promise<
           <p className="page-description">{ex.summary}</p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn btn-secondary"><UserPlus size={14} /> Assign</button>
-          <button className="btn btn-accent"><CheckCircle size={14} /> Mark Resolved</button>
+          <ExceptionActions exceptionId={ex.id} compact />
         </div>
       </div>
 
@@ -153,14 +153,7 @@ export default async function ExceptionDetailPage({ params }: { params: Promise<
 
           {/* Actions */}
           <div className="card">
-            <div className="card-header">
-              <div className="card-title">Available Actions</div>
-            </div>
-            <div className="card-body" style={{ display: "flex", gap: 10 }}>
-              <button className="btn btn-secondary"><UserPlus size={13} /> Assign Reviewer</button>
-              <button className="btn btn-accent">Request Review</button>
-              <button className="btn btn-primary"><CheckCircle size={13} /> Resolve</button>
-            </div>
+            <ExceptionActions exceptionId={ex.id} />
           </div>
         </div>
 

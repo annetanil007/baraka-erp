@@ -1,6 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import { mockApprovals } from "@/lib/mock-data";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { CheckCircle, XCircle, Eye } from "lucide-react";
+import { useLocalStorage } from "@/lib/useLocalStorage";
 
 const RISK_CLASS: Record<string, string> = {
   Critical: "priority-critical", High: "priority-high",
@@ -8,8 +12,15 @@ const RISK_CLASS: Record<string, string> = {
 };
 
 export default function ApprovalsPage() {
-  const pending = mockApprovals.filter((a) => a.status === "Pending");
-  const processed = mockApprovals.filter((a) => a.status !== "Pending");
+  const [approvals, setApprovals] = useLocalStorage("baraka:approvals", mockApprovals);
+  const [message, setMessage] = useState("");
+  const pending = approvals.filter((a) => a.status === "Pending");
+  const processed = approvals.filter((a) => a.status !== "Pending");
+  const updateApproval = (id: string, nextStatus: "Approved" | "Rejected") => {
+    setApprovals((current) => current.map((approval) => approval.id === id ? { ...approval, status: nextStatus } : approval));
+    setMessage(`Approval ${id} marked ${nextStatus.toLowerCase()}.`);
+    window.setTimeout(() => setMessage(""), 3000);
+  };
 
   return (
     <div>
@@ -56,9 +67,9 @@ export default function ApprovalsPage() {
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button className="btn btn-secondary btn-sm"><Eye size={12} /> Review</button>
-                      <button className="btn btn-primary btn-sm"><CheckCircle size={12} /> Approve</button>
-                      <button className="btn btn-danger btn-sm"><XCircle size={12} /> Reject</button>
+                      <button className="btn btn-secondary btn-sm" onClick={() => setMessage(`Reviewing ${apr.reference}.`)}><Eye size={12} /> Review</button>
+                      <button className="btn btn-primary btn-sm" onClick={() => updateApproval(apr.id, "Approved")}><CheckCircle size={12} /> Approve</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => updateApproval(apr.id, "Rejected")}><XCircle size={12} /> Reject</button>
                     </div>
                   </td>
                 </tr>
@@ -67,6 +78,7 @@ export default function ApprovalsPage() {
           </table>
         </div>
       </div>
+      {message && <div className="toast" role="status">{message}<button onClick={() => setMessage("")}>Dismiss</button></div>}
 
       {/* Processed */}
       <div className="section-heading">Recently Processed</div>

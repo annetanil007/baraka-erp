@@ -1,5 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import { mockInventory } from "@/lib/mock-data";
 import { AlertTriangle, TrendingDown, ArrowRightLeft, Plus } from "lucide-react";
+import { useLocalStorage } from "@/lib/useLocalStorage";
+import ActionButton from "@/components/ActionButton";
 
 const STATUS_CLASS: Record<string, string> = {
   OK: "badge-success",
@@ -9,8 +14,21 @@ const STATUS_CLASS: Record<string, string> = {
 };
 
 export default function InventoryPage() {
-  const critical = mockInventory.filter((p) => p.status === "Critical");
-  const lowStock = mockInventory.filter((p) => p.status === "Low Stock");
+  const [products, setProducts] = useLocalStorage("baraka:inventory", mockInventory);
+  const [dialog, setDialog] = useState(false);
+  const critical = products.filter((p) => p.status === "Critical");
+  const lowStock = products.filter((p) => p.status === "Low Stock");
+  const addProduct = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const name = String(form.get("name") || "New product");
+    const sku = String(form.get("sku") || "NEW-SKU");
+    const category = String(form.get("category") || "General");
+    const stock = Number(form.get("stock") || 0);
+    const minStock = Number(form.get("minStock") || 0);
+    setProducts((current) => [{ id: `PROD-${String(500 + current.length).padStart(4, "0")}`, name, category, sku, stock, minStock, unit: "Units", branch: "Main Warehouse", avgDailyDemand: 0, supplierLeadDays: 0, status: stock <= minStock ? "Low Stock" : "OK", daysUntilShortfall: null }, ...current]);
+    setDialog(false);
+  };
 
   return (
     <div>
@@ -21,7 +39,7 @@ export default function InventoryPage() {
             Real-time stock levels with demand projections and operational alerts.
           </p>
         </div>
-        <button className="btn btn-primary btn-sm"><Plus size={13} /> Add Product</button>
+        <button className="btn btn-primary btn-sm" onClick={() => setDialog(true)}><Plus size={13} /> Add Product</button>
       </div>
 
       {/* Demand Projection Alerts */}
@@ -69,7 +87,7 @@ export default function InventoryPage() {
               </tr>
             </thead>
             <tbody>
-              {mockInventory.map((item) => (
+              {products.map((item) => (
                 <tr key={item.id}>
                   <td>
                     <div style={{ fontWeight: 500 }}>{item.name}</div>
@@ -99,11 +117,11 @@ export default function InventoryPage() {
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button className="btn btn-secondary btn-sm">View</button>
+                      <ActionButton label={`View ${item.name}`} />
                       {item.status === "Transfer Opportunity" && (
-                        <button className="btn btn-accent btn-sm">
+                        <ActionButton label={`Transfer ${item.name}`} className="btn btn-accent btn-sm">
                           <ArrowRightLeft size={11} /> Transfer
-                        </button>
+                        </ActionButton>
                       )}
                     </div>
                   </td>
@@ -113,6 +131,10 @@ export default function InventoryPage() {
           </table>
         </div>
       </div>
+      {dialog && <div className="dialog-backdrop" role="presentation" onClick={() => setDialog(false)}><form className="dialog" role="dialog" aria-modal="true" onSubmit={addProduct} onClick={(event) => event.stopPropagation()}>
+        <div className="dialog-header"><div><div className="card-title">Add product</div><div className="card-subtitle">Create a stock item for the main warehouse.</div></div><button type="button" className="btn btn-ghost btn-sm" onClick={() => setDialog(false)}>Close</button></div>
+        <div className="dialog-body"><div className="form-group"><label className="form-label" htmlFor="product-name">Product name</label><input id="product-name" name="name" className="form-input" placeholder="e.g. Replacement filter" required autoFocus /></div><div className="grid-2"><div className="form-group"><label className="form-label" htmlFor="product-sku">SKU</label><input id="product-sku" name="sku" className="form-input" placeholder="SKU-001" required /></div><div className="form-group"><label className="form-label" htmlFor="product-category">Category</label><input id="product-category" name="category" className="form-input" placeholder="Category" required /></div></div><div className="grid-2"><div className="form-group"><label className="form-label" htmlFor="product-stock">Opening stock</label><input id="product-stock" name="stock" className="form-input" type="number" min="0" required /></div><div className="form-group"><label className="form-label" htmlFor="product-min-stock">Minimum stock</label><input id="product-min-stock" name="minStock" className="form-input" type="number" min="0" required /></div></div><div className="dialog-actions"><button type="button" className="btn btn-secondary" onClick={() => setDialog(false)}>Cancel</button><button className="btn btn-primary" type="submit">Save product</button></div></div>
+      </form></div>}
     </div>
   );
 }

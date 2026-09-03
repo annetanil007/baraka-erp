@@ -1,8 +1,30 @@
+"use client";
+
+import { useState } from "react";
 import { mockUsers } from "@/lib/mock-data";
 import { formatDateTime } from "@/lib/utils";
-import { Plus, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
+import { useLocalStorage } from "@/lib/useLocalStorage";
 
 export default function UsersPage() {
+  const [users, setUsers] = useLocalStorage("baraka:users", mockUsers);
+  const [dialog, setDialog] = useState<"create" | "edit" | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedUser = users.find((user) => user.id === selectedId);
+  const openCreate = () => { setSelectedId(null); setDialog("create"); };
+  const openEdit = (id: string) => { setSelectedId(id); setDialog("edit"); };
+  const toggleStatus = (id: string) => setUsers((current) => current.map((user) => user.id === id ? { ...user, status: user.status === "Active" ? "Inactive" : "Active" } : user));
+  const saveUser = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const name = String(form.get("name") || "New User");
+    const email = String(form.get("email") || "user@company.ae");
+    const role = String(form.get("role") || "Operations Employee");
+    if (dialog === "edit" && selectedId) setUsers((current) => current.map((user) => user.id === selectedId ? { ...user, name, email, role } : user));
+    if (dialog === "create") setUsers((current) => [{ id: `USR-${String(current.length + 1).padStart(3, "0")}`, name, email, role, branch: "Head Office", status: "Active", lastLogin: new Date().toISOString() }, ...current]);
+    setDialog(null);
+  };
+
   return (
     <div>
       <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -10,7 +32,7 @@ export default function UsersPage() {
           <h2 className="page-title">Users</h2>
           <p className="page-description">Manage platform users, roles and access levels.</p>
         </div>
-        <button className="btn btn-primary btn-sm"><UserPlus size={13} /> Add User</button>
+        <button className="btn btn-primary btn-sm" onClick={openCreate}><UserPlus size={13} /> Add User</button>
       </div>
 
       <div className="card">
@@ -28,7 +50,7 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {mockUsers.map((u) => (
+              {users.map((u) => (
                 <tr key={u.id}>
                   <td>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -60,9 +82,9 @@ export default function UsersPage() {
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button className="btn btn-secondary btn-sm">Edit</button>
-                      <button className="btn btn-ghost btn-sm" style={{ color: "var(--color-danger)" }}>
-                        Deactivate
+                      <button className="btn btn-secondary btn-sm" onClick={() => openEdit(u.id)}>Edit</button>
+                      <button className="btn btn-ghost btn-sm" style={{ color: u.status === "Active" ? "var(--color-danger)" : "var(--color-success)" }} onClick={() => toggleStatus(u.id)}>
+                        {u.status === "Active" ? "Deactivate" : "Activate"}
                       </button>
                     </div>
                   </td>
@@ -72,6 +94,10 @@ export default function UsersPage() {
           </table>
         </div>
       </div>
+      {dialog && <div className="dialog-backdrop" role="presentation" onClick={() => setDialog(null)}><form className="dialog" role="dialog" aria-modal="true" onSubmit={saveUser} onClick={(event) => event.stopPropagation()}>
+        <div className="dialog-header"><div><div className="card-title">{dialog === "create" ? "Add user" : "Edit user"}</div><div className="card-subtitle">Set identity and access for this platform user.</div></div><button type="button" className="btn btn-ghost btn-sm" onClick={() => setDialog(null)}>Close</button></div>
+        <div className="dialog-body"><div className="form-group"><label className="form-label" htmlFor="user-name">Full name</label><input id="user-name" name="name" className="form-input" defaultValue={selectedUser?.name} required autoFocus /></div><div className="form-group"><label className="form-label" htmlFor="user-email">Work email</label><input id="user-email" name="email" type="email" className="form-input" defaultValue={selectedUser?.email} required /></div><div className="form-group"><label className="form-label" htmlFor="user-role">Role</label><select id="user-role" name="role" className="form-input" defaultValue={selectedUser?.role || "Operations Employee"}><option>Finance Manager</option><option>Procurement Manager</option><option>Inventory Manager</option><option>Operations Employee</option><option>Accountant</option></select></div><div className="dialog-actions"><button type="button" className="btn btn-secondary" onClick={() => setDialog(null)}>Cancel</button><button className="btn btn-primary" type="submit">Save user</button></div></div>
+      </form></div>}
     </div>
   );
 }

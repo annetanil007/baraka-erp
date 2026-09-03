@@ -1,15 +1,5 @@
+import ModulePage from "@/components/ModulePage";
+
 export default function Page() {
-  return (
-    <div>
-      <div className="page-header">
-        <h2 className="page-title">Expenses</h2>
-        <p className="page-description">Expense claims with policy validation and approval workflow.</p>
-      </div>
-      <div className="card">
-        <div className="card-body" style={{ padding: 40, textAlign: "center", color: "var(--color-text-muted)", fontSize: 13 }}>
-          This module is available in the full implementation.
-        </div>
-      </div>
-    </div>
-  );
+  return <ModulePage title="Expenses" description="Employee expenses, reimbursements and approvals." actionLabel="Record expense" stats={[{ label: "This month", value: "AED 184,260" }, { label: "Pending review", value: "12", tone: "warning" }, { label: "Approved", value: "AED 146,800", tone: "success" }, { label: "Average claim", value: "AED 1,640" }]} columns={[{ key: "id", label: "Expense", mono: true }, { key: "employee", label: "Employee" }, { key: "category", label: "Category" }, { key: "amount", label: "Amount", numeric: true }, { key: "status", label: "Status" }, { key: "submitted", label: "Submitted" }]} rows={[{ id: "EXP-2026-00312", employee: "Sara Al Rashidi", category: "Travel", amount: "AED 8,400", status: "Pending", submitted: "02 Sep 2026" }, { id: "EXP-2026-00311", employee: "Ahmed Al Mansouri", category: "Client meeting", amount: "AED 1,250", status: "Approved", submitted: "01 Sep 2026" }, { id: "EXP-2026-00310", employee: "Mariam Al Zaabi", category: "Fuel", amount: "AED 680", status: "Approved", submitted: "01 Sep 2026" }, { id: "EXP-2026-00309", employee: "Omar Al Nouri", category: "Equipment", amount: "AED 3,900", status: "Rejected", submitted: "31 Aug 2026" }]} />;
 }

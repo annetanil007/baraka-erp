@@ -1,6 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import { mockSalesOrders } from "@/lib/mock-data";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { Plus, AlertCircle } from "lucide-react";
+import { useLocalStorage } from "@/lib/useLocalStorage";
 
 const RISK_CLASS: Record<string, string> = {
   High: "priority-high", Medium: "priority-medium", Low: "priority-low",
@@ -11,7 +15,18 @@ const STATUS_CLASS: Record<string, string> = {
 };
 
 export default function SalesPage() {
-  const flagged = mockSalesOrders.filter((o) => o.riskLevel === "Medium" || o.riskLevel === "High");
+  const [orders, setOrders] = useLocalStorage("baraka:sales-orders", mockSalesOrders);
+  const [dialog, setDialog] = useState<"create" | "view" | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<typeof mockSalesOrders[number] | null>(null);
+  const flagged = orders.filter((o) => o.riskLevel === "Medium" || o.riskLevel === "High");
+  const saveOrder = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const customer = String(form.get("customer") || "New customer");
+    const amount = Number(form.get("amount") || 0);
+    setOrders((current) => [{ id: `ORD-2026-${String(1204 + current.length).padStart(5, "0")}`, customer, amount, items: 1, status: "Under Review", riskLevel: "Low", createdAt: new Date().toISOString() }, ...current]);
+    setDialog(null);
+  };
 
   return (
     <div>
@@ -20,7 +35,7 @@ export default function SalesPage() {
           <h2 className="page-title">Sales Orders</h2>
           <p className="page-description">Active sales orders with validation status and risk evaluation.</p>
         </div>
-        <button className="btn btn-primary btn-sm"><Plus size={13} /> New Order</button>
+        <button className="btn btn-primary btn-sm" onClick={() => setDialog("create")}><Plus size={13} /> New Order</button>
       </div>
 
       {/* Flagged orders notice */}
@@ -50,7 +65,7 @@ export default function SalesPage() {
               </tr>
             </thead>
             <tbody>
-              {mockSalesOrders.map((o) => (
+              {orders.map((o) => (
                 <tr key={o.id}>
                   <td style={{ fontFamily: "monospace", fontSize: 12 }}>{o.id}</td>
                   <td style={{ fontWeight: 500 }}>{o.customer}</td>
@@ -66,7 +81,7 @@ export default function SalesPage() {
                     {formatDateTime(o.createdAt)}
                   </td>
                   <td>
-                    <button className="btn btn-secondary btn-sm">View</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedOrder(o); setDialog("view"); }}>View</button>
                   </td>
                 </tr>
               ))}
@@ -74,6 +89,7 @@ export default function SalesPage() {
           </table>
         </div>
       </div>
+      {dialog && <div className="dialog-backdrop" role="presentation" onClick={() => setDialog(null)}>{dialog === "create" ? <form className="dialog" role="dialog" aria-modal="true" onSubmit={saveOrder} onClick={(event) => event.stopPropagation()}><div className="dialog-header"><div><div className="card-title">New sales order</div><div className="card-subtitle">Create an order and send it through review.</div></div><button type="button" className="btn btn-ghost btn-sm" onClick={() => setDialog(null)}>Close</button></div><div className="dialog-body"><div className="form-group"><label className="form-label" htmlFor="order-customer">Customer</label><input id="order-customer" name="customer" className="form-input" placeholder="Customer name" required autoFocus /></div><div className="form-group"><label className="form-label" htmlFor="order-amount">Order value (AED)</label><input id="order-amount" name="amount" className="form-input" type="number" min="0" step="0.01" placeholder="0.00" required /></div><div className="dialog-actions"><button type="button" className="btn btn-secondary" onClick={() => setDialog(null)}>Cancel</button><button className="btn btn-primary" type="submit">Create order</button></div></div></form> : <div className="dialog" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}><div className="dialog-header"><div><div className="card-title">Order details</div><div className="card-subtitle">Sales order review</div></div><button className="btn btn-ghost btn-sm" onClick={() => setDialog(null)}>Close</button></div><div className="dialog-body">{selectedOrder && Object.entries(selectedOrder).map(([key, value]) => <div className="eval-row" key={key}><span className="eval-label">{key}</span><span className="eval-value">{key === "amount" ? formatCurrency(Number(value)) : String(value)}</span></div>)}</div></div>}</div>}
     </div>
   );
 }

@@ -1,15 +1,5 @@
+import ModulePage from "@/components/ModulePage";
+
 export default function Page() {
-  return (
-    <div>
-      <div className="page-header">
-        <h2 className="page-title">Customers</h2>
-        <p className="page-description">Customer records, credit limits and sales history.</p>
-      </div>
-      <div className="card">
-        <div className="card-body" style={{ padding: 40, textAlign: "center", color: "var(--color-text-muted)", fontSize: 13 }}>
-          This module is available in the full implementation.
-        </div>
-      </div>
-    </div>
-  );
+  return <ModulePage title="Customers" description="Customer accounts, credit limits and activity." actionLabel="Add customer" stats={[{ label: "Active customers", value: "286", tone: "success" }, { label: "Revenue this month", value: "AED 2.84M" }, { label: "Receivables", value: "AED 1.26M", tone: "warning" }, { label: "Credit holds", value: "4", tone: "danger" }]} columns={[{ key: "id", label: "Customer ID", mono: true }, { key: "name", label: "Customer" }, { key: "segment", label: "Segment" }, { key: "credit", label: "Credit limit", numeric: true }, { key: "balance", label: "Balance", numeric: true }, { key: "status", label: "Status" }]} rows={[{ id: "CUS-00184", name: "Falcon Industrial LLC", segment: "Enterprise", credit: "AED 500,000", balance: "AED 206,500", status: "Active" }, { id: "CUS-00183", name: "Al Jadeed Trading", segment: "Commercial", credit: "AED 250,000", balance: "AED 34,000", status: "Active" }, { id: "CUS-00182", name: "Emirates Contractors", segment: "Enterprise", credit: "AED 750,000", balance: "AED 120,000", status: "Active" }, { id: "CUS-00181", name: "Nexus Maintenance", segment: "SMB", credit: "AED 50,000", balance: "AED 58,400", status: "Credit hold" }]} />;
 }

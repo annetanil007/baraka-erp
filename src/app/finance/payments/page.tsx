@@ -1,15 +1,5 @@
+import ModulePage from "@/components/ModulePage";
+
 export default function Page() {
-  return (
-    <div>
-      <div className="page-header">
-        <h2 className="page-title">Payments</h2>
-        <p className="page-description">Supplier and customer payment records with duplicate detection.</p>
-      </div>
-      <div className="card">
-        <div className="card-body" style={{ padding: 40, textAlign: "center", color: "var(--color-text-muted)", fontSize: 13 }}>
-          This module is available in the full implementation.
-        </div>
-      </div>
-    </div>
-  );
+  return <ModulePage title="Payments" description="Payment processing, schedules and transaction status." actionLabel="Schedule payment" stats={[{ label: "Due this week", value: "AED 286,400", tone: "warning" }, { label: "Processed this month", value: "AED 1.42M" }, { label: "Pending payments", value: "6", tone: "info" }, { label: "Success rate", value: "98.6%", tone: "success" }]} columns={[{ key: "id", label: "Payment", mono: true }, { key: "supplier", label: "Payee" }, { key: "reference", label: "Reference", mono: true }, { key: "amount", label: "Amount", numeric: true }, { key: "method", label: "Method" }, { key: "status", label: "Status" }, { key: "due", label: "Due date" }]} rows={[{ id: "PAY-2026-00301", supplier: "Gulf Trading Co.", reference: "INV-S-2026-00882", amount: "AED 160,000", method: "Bank transfer", status: "Pending", due: "05 Sep 2026" }, { id: "PAY-2026-00300", supplier: "Emirates Supply LLC", reference: "INV-S-2026-00881", amount: "AED 48,500", method: "Bank transfer", status: "Paid", due: "02 Sep 2026" }, { id: "PAY-2026-00299", supplier: "Global Parts DMCC", reference: "PO-2026-00437", amount: "AED 225,000", method: "Bank transfer", status: "Under Review", due: "04 Sep 2026" }, { id: "PAY-2026-00298", supplier: "Al Noor Industrial", reference: "INV-S-2026-00880", amount: "AED 42,000", method: "Cheque", status: "Scheduled", due: "06 Sep 2026" }]} />;
 }

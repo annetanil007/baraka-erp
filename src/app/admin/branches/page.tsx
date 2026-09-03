@@ -1,5 +1,6 @@
 import { mockBranches } from "@/lib/mock-data";
 import { Building2, Plus } from "lucide-react";
+import ActionButton from "@/components/ActionButton";
 
 export default function BranchesPage() {
   return (
@@ -9,7 +10,7 @@ export default function BranchesPage() {
           <h2 className="page-title">Branches</h2>
           <p className="page-description">Organisation branches, locations and assigned managers.</p>
         </div>
-        <button className="btn btn-primary btn-sm"><Plus size={13} /> Add Branch</button>
+        <ActionButton label="Add branch" className="btn btn-primary btn-sm"><Plus size={13} /> Add Branch</ActionButton>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
@@ -49,8 +50,8 @@ export default function BranchesPage() {
                 </div>
               </div>
               <div style={{ marginTop: 14, display: "flex", gap: 8 }}>
-                <button className="btn btn-secondary btn-sm" style={{ flex: 1 }}>Edit</button>
-                <button className="btn btn-ghost btn-sm">View Details</button>
+                <ActionButton label={`Edit ${br.name}`} className="btn btn-secondary btn-sm" />
+                <ActionButton label={`View details for ${br.name}`} className="btn btn-ghost btn-sm" />
               </div>
             </div>
           </div>

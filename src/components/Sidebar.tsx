@@ -4,19 +4,24 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Package, ShoppingCart, Users, Truck,
-  CreditCard, FileText, DollarSign, Receipt,
-  AlertTriangle, CheckSquare, GitMerge, ClipboardCheck,
-  BarChart2, PieChart, BookOpen, Settings, UserCog,
-  Building2, Shield, ChevronDown, ChevronRight,
-  TrendingUp, Warehouse,
+  LayoutDashboard, ShoppingCart, DollarSign, BarChart2, Settings,
+  Shield, ChevronDown, TrendingUp,
 } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 type NavItem = {
   label: string;
   href?: string;
   icon: React.ElementType;
   children?: { label: string; href: string }[];
+};
+
+const ARABIC_LABELS: Record<string, string> = {
+  Dashboard: "لوحة التحكم", Operations: "العمليات", Sales: "المبيعات", Customers: "العملاء", Inventory: "المخزون", Transfers: "التحويلات",
+  Procurement: "المشتريات", "Purchase Requests": "طلبات الشراء", "Purchase Orders": "أوامر الشراء", Suppliers: "الموردون", Receiving: "الاستلام",
+  Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", Control: "الرقابة",
+  Exceptions: "الاستثناءات", Reviews: "المراجعات", Approvals: "الموافقات", Reconciliation: "التسوية", Reports: "التقارير", "Operational Reports": "التقارير التشغيلية",
+  "Financial Reports": "التقارير المالية", "Inventory Reports": "تقارير المخزون", Administration: "الإدارة", Users: "المستخدمون", "Roles & Permissions": "الأدوار والصلاحيات", Branches: "الفروع", "System Settings": "إعدادات النظام",
 };
 
 const NAV: NavItem[] = [
@@ -84,7 +89,9 @@ const NAV: NavItem[] = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const [expanded, setExpanded] = useState<string[]>(["Operations", "Control"]);
+  const { language } = useLanguage();
+  const label = (value: string) => language === "ar" ? ARABIC_LABELS[value] || value : value;
+  const [expanded, setExpanded] = useState<string[]>([]);
 
   const toggle = (label: string) => {
     setExpanded((prev) =>
@@ -100,8 +107,8 @@ export default function Sidebar() {
     <aside className="sidebar">
       {/* Logo */}
       <div className="sidebar-logo">
-        <h1>EnterpriseMC</h1>
-        <p>Management &amp; Control Platform</p>
+        <h1>Baraka</h1>
+        <p>{language === "ar" ? "منصة عمليات المؤسسات" : "Enterprise Operations Platform"}</p>
       </div>
 
       {/* Nav items */}
@@ -115,7 +122,7 @@ export default function Sidebar() {
                 className={`sidebar-item ${isActive(item.href) ? "active" : ""}`}
               >
                 <item.icon size={16} className="icon" />
-                {item.label}
+                {label(item.label)}
               </Link>
             );
           }
@@ -124,32 +131,31 @@ export default function Sidebar() {
           const groupActive = isGroupActive(item);
 
           return (
-            <div key={item.label}>
+            <div key={item.label} className={`sidebar-group ${open ? "is-open" : ""}`}>
               <button
+                type="button"
                 className={`sidebar-item ${groupActive ? "active" : ""}`}
                 onClick={() => toggle(item.label)}
                 style={{ justifyContent: "space-between" }}
               >
                 <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <item.icon size={16} className="icon" />
-                  {item.label}
+                  {label(item.label)}
                 </span>
-                {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+                <ChevronDown size={13} className={`sidebar-chevron ${open ? "is-open" : ""}`} />
               </button>
 
-              {open && (
-                <div>
-                  {item.children?.map((child) => (
-                    <Link
-                      key={child.href}
-                      href={child.href}
-                      className={`sidebar-sub-item ${isActive(child.href) ? "active" : ""}`}
-                    >
-                      {child.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
+              <div className="sidebar-children">
+                {item.children?.map((child) => (
+                  <Link
+                    key={child.href}
+                    href={child.href}
+                    className={`sidebar-sub-item ${isActive(child.href) ? "active" : ""}`}
+                  >
+                      {label(child.label)}
+                  </Link>
+                ))}
+              </div>
             </div>
           );
         })}
