@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { mockApprovals } from "@/lib/mock-data";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
-import { CheckCircle, XCircle, Eye } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, CheckCircle, CircleDollarSign, Clock3, Eye, ShieldCheck, XCircle } from "lucide-react";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 
 const RISK_CLASS: Record<string, string> = {
@@ -16,6 +16,8 @@ export default function ApprovalsPage() {
   const [message, setMessage] = useState("");
   const pending = approvals.filter((a) => a.status === "Pending");
   const processed = approvals.filter((a) => a.status !== "Pending");
+  const pendingValue = pending.reduce((total, approval) => total + approval.amount, 0);
+  const urgent = pending.filter((approval) => ["Critical", "High", "Elevated"].includes(approval.riskLevel));
   const updateApproval = (id: string, nextStatus: "Approved" | "Rejected") => {
     setApprovals((current) => current.map((approval) => approval.id === id ? { ...approval, status: nextStatus } : approval));
     setMessage(`Approval ${id} marked ${nextStatus.toLowerCase()}.`);
@@ -23,16 +25,31 @@ export default function ApprovalsPage() {
   };
 
   return (
-    <div>
+    <div className="approval-center">
       <div className="page-header">
-        <h2 className="page-title">Approvals</h2>
+        <div>
+          <div className="eyebrow"><ShieldCheck size={13} /> Decision control</div>
+          <h2 className="page-title">Approval center</h2>
+        </div>
         <p className="page-description">
-          Transactions submitted for authorisation. Review required before processing.
+          Make confident decisions with risk, value, and context in one view.
         </p>
       </div>
 
-      {/* Pending */}
-      <div className="section-heading">Pending Review — {pending.length} Items</div>
+      <div className="approval-summary-grid">
+        <div className="approval-summary-featured"><span>Waiting for your decision</span><strong>{pending.length} <small>items</small></strong><p><Clock3 size={12} /> Oldest request: 18 hours</p></div>
+        <div className="approval-summary-card"><span>Financial exposure</span><strong>{formatCurrency(pendingValue)}</strong><small><CircleDollarSign size={12} /> Pending value</small></div>
+        <div className="approval-summary-card"><span>Needs priority review</span><strong>{urgent.length}</strong><small className="approval-warning"><AlertTriangle size={12} /> Elevated risk or higher</small></div>
+        <div className="approval-summary-card"><span>Average response</span><strong>2.4 hrs</strong><small className="approval-positive">↓ 18% faster this week</small></div>
+      </div>
+
+      <div className="approval-focus">
+        <div className="approval-focus-icon"><AlertTriangle size={16} /></div>
+        <div><span className="eyebrow">Recommended focus</span><strong>Review PO-2026-00441 first</strong><p>It carries the largest exposure and is already flagged for an invoice mismatch.</p></div>
+        <button className="btn btn-primary btn-sm" onClick={() => document.getElementById("approval-APR-2026-00091")?.scrollIntoView({ behavior: "smooth", block: "center" })}>Open priority <ArrowUpRight size={13} /></button>
+      </div>
+
+      <div className="section-heading">Decision queue <span className="section-heading-note">{pending.length} pending · sorted by risk</span></div>
       <div className="card" style={{ marginBottom: 24 }}>
         <div className="table-container">
           <table className="data-table">
@@ -49,12 +66,12 @@ export default function ApprovalsPage() {
             </thead>
             <tbody>
               {pending.map((apr) => (
-                <tr key={apr.id}>
+                <tr id={`approval-${apr.id}`} key={apr.id}>
                   <td>
                     <div style={{ fontFamily: "monospace", fontSize: 12 }}>{apr.reference}</div>
                     <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>{apr.id}</div>
                   </td>
-                  <td>{apr.type}</td>
+                  <td><div style={{ fontWeight: 500 }}>{apr.type}</div><div style={{ color: "var(--color-text-muted)", fontSize: 11 }}>{apr.riskLevel === "Low" ? "Standard review" : "Context required"}</div></td>
                   <td style={{ color: "var(--color-text-secondary)" }}>{apr.requestedBy}</td>
                   <td style={{ fontWeight: 600 }}>{formatCurrency(apr.amount)}</td>
                   <td>
@@ -80,8 +97,7 @@ export default function ApprovalsPage() {
       </div>
       {message && <div className="toast" role="status">{message}<button onClick={() => setMessage("")}>Dismiss</button></div>}
 
-      {/* Processed */}
-      <div className="section-heading">Recently Processed</div>
+      <div className="section-heading">Recently processed <span className="section-heading-note">{processed.length} decisions</span></div>
       <div className="card">
         <div className="table-container">
           <table className="data-table">
