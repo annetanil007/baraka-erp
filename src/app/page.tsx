@@ -1,6 +1,9 @@
-import { mockKPIs, mockExceptions, mockRecentActivity, mockApprovals } from "@/lib/mock-data";
+import { mockKPIs, mockExceptions, mockRecentActivity, mockApprovals, mockInventory } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
-import { AlertTriangle, Clock, ArrowUpRight } from "lucide-react";
+import {
+  AlertTriangle, ArrowDownRight, ArrowUpRight, Boxes, Clock3, Command,
+  CreditCard, ExternalLink, PackageCheck, Sparkles, WalletCards,
+} from "lucide-react";
 import Link from "next/link";
 import AnalyticsCharts from "@/components/AnalyticsCharts";
 
@@ -8,203 +11,78 @@ const PRIORITY_COLOR: Record<string, string> = {
   Critical: "critical", High: "high", Medium: "medium", Low: "low",
 };
 
+const actions = [
+  { icon: AlertTriangle, tone: "danger", title: "Resolve invoice mismatch", detail: "PO-2026-00441 is AED 10,000 above approval.", href: "/control/exceptions/EX-2026-00184", label: "Review now" },
+  { icon: PackageCheck, tone: "warning", title: "Replenish Industrial Filter", detail: "Only 4 days of cover remain at current demand.", href: "/operations/inventory", label: "Plan order" },
+  { icon: CreditCard, tone: "info", title: "Approve supplier invoice", detail: "3 invoices are waiting for finance review.", href: "/finance/invoices", label: "Open queue" },
+];
+
+const insights = [
+  { label: "Gross margin", value: "AED 1.90M", change: "+8.6%", note: "vs. last month", direction: "up" },
+  { label: "Capital in inventory", value: "AED 4.26M", change: "AED 184K", note: "slow-moving", direction: "down" },
+  { label: "Receivables due", value: "AED 682K", change: "14 accounts", note: "need follow-up", direction: "down" },
+];
+
 export default function DashboardPage() {
-  const topExceptions = mockExceptions.slice(0, 5);
-  const pendingApprovals = mockApprovals.filter((a) => a.status === "Pending");
+  const topExceptions = mockExceptions.slice(0, 3);
+  const pendingApprovals = mockApprovals.filter((a) => a.status === "Pending").slice(0, 3);
+  const lowStock = mockInventory.filter((item) => item.status !== "OK").slice(0, 3);
 
   return (
-    <div>
-      {/* Page header */}
-      <div className="page-header">
-        <h2 className="page-title">Operational Overview</h2>
-        <p className="page-description">
-          Summary of current operational status, exceptions and pending actions.
-        </p>
+    <div className="owner-dashboard">
+      <section className="owner-hero">
+        <div>
+          <div className="eyebrow"><Sparkles size={13} /> Owner command center</div>
+          <h2 className="page-title">Good morning, Finance Manager</h2>
+          <p className="page-description">Here&apos;s what deserves your attention across Baraka today.</p>
+        </div>
+        <div className="owner-hero-actions">
+          <button className="command-button" type="button"><Command size={14} /><span>Search anything</span><kbd>⌘ K</kbd></button>
+          <Link className="btn btn-primary btn-sm" href="/operations/sales">New sale <ArrowUpRight size={13} /></Link>
+        </div>
+      </section>
+
+      <section className="business-pulse">
+        <div className="pulse-copy">
+          <span className="pulse-label">Business pulse · 02 Sep 2026</span>
+          <strong>Healthy momentum, with 3 decisions waiting.</strong>
+          <span className="pulse-note">Revenue is ahead of yesterday while inventory risk is concentrated in 2 parts.</span>
+        </div>
+        <div className="pulse-score"><span>Operating health</span><strong>82<span>/100</span></strong><div className="score-bar"><i /></div></div>
+        <div className="pulse-status"><span className="pulse-dot" /><div><strong>All systems operational</strong><span>Synced 10:42 · Head Office</span></div></div>
+      </section>
+
+      <div className="owner-kpi-grid">
+        <div className="owner-kpi owner-kpi-featured"><div className="kpi-label">Today&apos;s revenue</div><strong>{formatCurrency(mockKPIs.todaysRevenue)}</strong><span className="kpi-trend-up"><ArrowUpRight size={13} /> {mockKPIs.revenueChange}% vs yesterday</span><div className="mini-bars"><i /><i /><i /><i /><i /><i /><i /></div></div>
+        {insights.map((insight) => <div className="owner-kpi" key={insight.label}><div className="kpi-label">{insight.label}</div><strong>{insight.value}</strong><span className={insight.direction === "up" ? "kpi-trend-up" : "kpi-trend-down"}>{insight.direction === "up" ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />} {insight.change} <em>{insight.note}</em></span></div>)}
       </div>
 
-      <div className="operational-pulse" aria-label="Operational system status">
-        <div className="pulse-status"><span className="pulse-dot" /><div><strong>Control plane operational</strong><span>Last sync 10:42:18 · Head Office</span></div></div>
-        <div className="pulse-metrics"><span><b>99.98%</b> uptime</span><span><b>4</b> queues monitored</span><span><b>0</b> critical outages</span></div>
-      </div>
+      <div className="owner-section-heading"><div><div className="section-kicker">Your next best actions</div><h3>Move the business forward</h3></div><span className="owner-section-count">3 recommended</span></div>
+      <section className="action-grid">
+        {actions.map((action) => <Link className="action-card" href={action.href} key={action.title}><div className={`action-icon ${action.tone}`}><action.icon size={16} /></div><div className="action-content"><strong>{action.title}</strong><span>{action.detail}</span><b>{action.label} <ArrowUpRight size={12} /></b></div></Link>)}
+      </section>
 
-      {/* KPI Strip */}
-      <div className="kpi-grid" style={{ marginBottom: 24 }}>
-        <div className="kpi-card">
-          <div className="kpi-label">Open Exceptions</div>
-          <div className="kpi-value" style={{ color: "var(--color-danger)" }}>
-            {mockKPIs.openExceptions}
-          </div>
-          <div className="kpi-sub">
-            <Link href="/control/exceptions" style={{ color: "var(--color-accent)", fontSize: 12 }}>
-              View all exceptions →
-            </Link>
+      <div className="owner-main-grid">
+        <div className="card">
+          <div className="card-header"><div><div className="card-title">Business signals</div><div className="card-subtitle">The numbers behind today&apos;s decisions</div></div><Link href="/reports/financial" className="text-link">View reports <ExternalLink size={12} /></Link></div>
+          <div className="signal-list">
+            <div className="signal-row"><div className="signal-icon positive"><WalletCards size={15} /></div><div><strong>Cash coverage is comfortable</strong><span>Expected collections cover the next 21 days of commitments.</span></div><b className="signal-positive">+21 days</b></div>
+            <div className="signal-row"><div className="signal-icon warning"><Boxes size={15} /></div><div><strong>Inventory is tying up capital</strong><span>12 products have not moved in more than 60 days.</span></div><b className="signal-warning">AED 184K</b></div>
+            <div className="signal-row"><div className="signal-icon neutral"><PackageCheck size={15} /></div><div><strong>Supplier costs are shifting</strong><span>Hydraulic Pump 5HP purchase cost increased 8% this month.</span></div><b className="signal-neutral">+8%</b></div>
           </div>
         </div>
-
-        <div className="kpi-card">
-          <div className="kpi-label">Pending Approvals</div>
-          <div className="kpi-value" style={{ color: "var(--color-warning)" }}>
-            {mockKPIs.pendingApprovals}
-          </div>
-          <div className="kpi-sub">
-            <Link href="/control/approvals" style={{ color: "var(--color-accent)", fontSize: 12 }}>
-              Review approvals →
-            </Link>
-          </div>
-        </div>
-
-        <div className="kpi-card">
-          <div className="kpi-label">Today&apos;s Revenue</div>
-          <div className="kpi-value">{formatCurrency(mockKPIs.todaysRevenue)}</div>
-          <div className="kpi-sub">
-            <span className="kpi-trend-up" style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 12 }}>
-              <ArrowUpRight size={12} />
-              +{mockKPIs.revenueChange}% vs yesterday
-            </span>
-          </div>
-        </div>
-
-        <div className="kpi-card">
-          <div className="kpi-label">Inventory Alerts</div>
-          <div className="kpi-value" style={{ color: "var(--color-warning)" }}>
-            {mockKPIs.inventoryAlerts}
-          </div>
-          <div className="kpi-sub">
-            <Link href="/operations/inventory" style={{ color: "var(--color-accent)", fontSize: 12 }}>
-              View inventory →
-            </Link>
-          </div>
-        </div>
-
-        <div className="kpi-card">
-          <div className="kpi-label">Open Purchase Orders</div>
-          <div className="kpi-value">{mockKPIs.openPOs}</div>
-          <div className="kpi-sub">
-            <Link href="/procurement/orders" style={{ color: "var(--color-accent)", fontSize: 12 }}>
-              View orders →
-            </Link>
-          </div>
-        </div>
-
-        <div className="kpi-card">
-          <div className="kpi-label">Reconciliation Items</div>
-          <div className="kpi-value" style={{ color: "var(--color-info)" }}>
-            {mockKPIs.reconciliationItems}
-          </div>
-          <div className="kpi-sub">
-            <Link href="/control/reconciliation" style={{ color: "var(--color-accent)", fontSize: 12 }}>
-              View reconciliation →
-            </Link>
-          </div>
+        <div className="card">
+          <div className="card-header"><div><div className="card-title">Stock watch</div><div className="card-subtitle">Products most likely to interrupt sales</div></div><Link href="/operations/inventory" className="text-link">All inventory <ExternalLink size={12} /></Link></div>
+          <div className="stock-watch">{lowStock.map((item) => <div className="stock-row" key={item.id}><div className="stock-thumb"><Boxes size={14} /></div><div><strong>{item.name}</strong><span>{item.stock} {item.unit} left · {item.daysUntilShortfall ?? "—"} days cover</span></div><span className={`badge ${item.status === "Critical" ? "badge-danger" : "badge-warning"}`}>{item.status}</span></div>)}</div>
         </div>
       </div>
 
       <AnalyticsCharts />
 
-      {/* Two-column main area */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 20 }}>
-
-        {/* Requires Attention */}
-        <div className="card">
-          <div className="card-header">
-            <div>
-              <div className="card-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <AlertTriangle size={15} style={{ color: "var(--color-danger)" }} />
-                Requires Attention
-              </div>
-              <div className="card-subtitle">Active exceptions requiring action</div>
-            </div>
-            <Link href="/control/exceptions" className="btn btn-secondary btn-sm">
-              View All
-            </Link>
-          </div>
-          <div className="card-body" style={{ padding: "0 20px" }}>
-            {topExceptions.map((ex) => (
-              <div key={ex.id} className="attention-item">
-                <div className={`attention-dot ${PRIORITY_COLOR[ex.priority] ?? "low"}`} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
-                    <div className="attention-title">{ex.summary}</div>
-                    <span className={`badge ${
-                      ex.priority === "Critical" ? "priority-critical" :
-                      ex.priority === "High" ? "priority-high" :
-                      ex.priority === "Medium" ? "priority-medium" : "priority-low"
-                    }`}>
-                      {ex.priority}
-                    </span>
-                  </div>
-                  <div className="attention-meta">
-                    {ex.area} · {ex.id} · {ex.status}
-                  </div>
-                </div>
-                <Link href={`/control/exceptions/${ex.id}`}
-                  style={{ color: "var(--color-accent)", fontSize: 12, whiteSpace: "nowrap", marginLeft: 8 }}>
-                  Review
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-
-          {/* Pending Approvals */}
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title">Pending Approvals</div>
-              <Link href="/control/approvals" style={{ fontSize: 12, color: "var(--color-accent)" }}>
-                View All
-              </Link>
-            </div>
-            <div className="card-body" style={{ padding: "0 20px" }}>
-              {pendingApprovals.map((apr) => (
-                <div key={apr.id} className="attention-item">
-                  <div style={{ flex: 1 }}>
-                    <div className="attention-title">{apr.type}</div>
-                    <div className="attention-meta">{apr.reference} · {apr.requestedBy}</div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>
-                      {formatCurrency(apr.amount)}
-                    </div>
-                    <span className={`badge ${
-                      apr.riskLevel === "High" || apr.riskLevel === "Critical" ? "badge-danger" :
-                      apr.riskLevel === "Elevated" || apr.riskLevel === "Medium" ? "badge-warning" : "badge-muted"
-                    }`} style={{ marginTop: 4 }}>
-                      {apr.riskLevel}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="card" style={{ flex: 1 }}>
-            <div className="card-header">
-              <div className="card-title">
-                <Clock size={14} style={{ display: "inline", marginRight: 6 }} />
-                Recent Activity
-              </div>
-            </div>
-            <div className="card-body" style={{ padding: "8px 20px" }}>
-              {mockRecentActivity.map((act, i) => (
-                <div key={i} style={{ display: "flex", gap: 12, paddingBottom: 14 }}>
-                  <div style={{ fontSize: 11, color: "var(--color-text-muted)", fontWeight: 500, width: 36, flexShrink: 0, paddingTop: 1 }}>
-                    {act.time}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, color: "var(--color-text-primary)" }}>{act.action}</div>
-                    <div style={{ fontSize: 11.5, color: "var(--color-text-muted)", marginTop: 2 }}>
-                      {act.area} · {act.user}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+      <div className="owner-bottom-grid">
+        <div className="card"><div className="card-header"><div><div className="card-title"><AlertTriangle size={15} style={{ color: "var(--color-danger)", marginRight: 7, verticalAlign: "-2px" }} />Requires attention</div><div className="card-subtitle">Exceptions with financial or operational impact</div></div><Link href="/control/exceptions" className="text-link">View all <ExternalLink size={12} /></Link></div><div className="card-body owner-list-body">{topExceptions.map((ex) => <div key={ex.id} className="attention-item"><div className={`attention-dot ${PRIORITY_COLOR[ex.priority] ?? "low"}`} /><div style={{ flex: 1 }}><div className="attention-title">{ex.summary}</div><div className="attention-meta">{ex.area} · {ex.id}</div></div><span className={`badge ${ex.priority === "Critical" || ex.priority === "High" ? "badge-danger" : "badge-warning"}`}>{ex.priority}</span></div>)}</div></div>
+        <div className="card"><div className="card-header"><div><div className="card-title"><Clock3 size={14} style={{ marginRight: 7, verticalAlign: "-2px" }} />Latest activity</div><div className="card-subtitle">A live view of your operation</div></div></div><div className="card-body owner-list-body">{mockRecentActivity.slice(0, 4).map((activity) => <div className="activity-row" key={`${activity.time}-${activity.action}`}><span>{activity.time}</span><div><strong>{activity.action}</strong><small>{activity.area} · {activity.user}</small></div></div>)}</div></div>
+        <div className="card"><div className="card-header"><div><div className="card-title">Approval queue</div><div className="card-subtitle">Value waiting for a decision</div></div><Link href="/control/approvals" className="text-link">Open queue <ExternalLink size={12} /></Link></div><div className="card-body owner-list-body">{pendingApprovals.map((approval) => <div className="approval-row" key={approval.id}><div><strong>{approval.type}</strong><small>{approval.reference}</small></div><b>{formatCurrency(approval.amount)}</b></div>)}</div></div>
       </div>
     </div>
   );

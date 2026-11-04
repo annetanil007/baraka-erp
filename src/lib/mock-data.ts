@@ -163,11 +163,11 @@ export const mockInvoices = [
 ];
 
 export const mockInventory = [
-  { id: "PROD-0441", name: "Industrial Filter Type A", category: "Filters", sku: "IFA-441", stock: 24, minStock: 20, unit: "Units", branch: "Main Warehouse", avgDailyDemand: 6, supplierLeadDays: 7, status: "Low Stock", daysUntilShortfall: 4 },
-  { id: "PROD-0220", name: "Hydraulic Pump 5HP", category: "Machinery", sku: "HP5-220", stock: 8, minStock: 5, unit: "Units", branch: "Main Warehouse", avgDailyDemand: 1, supplierLeadDays: 14, status: "OK", daysUntilShortfall: null },
-  { id: "PROD-0115", name: "Safety Valve 2-inch", category: "Valves", sku: "SV2-115", stock: 150, minStock: 50, unit: "Units", branch: "Branch A", avgDailyDemand: 5, supplierLeadDays: 5, status: "OK", daysUntilShortfall: null },
-  { id: "PROD-0088", name: "Pressure Gauge 100 PSI", category: "Instruments", sku: "PG100-088", stock: 3, minStock: 10, unit: "Units", branch: "Branch B", avgDailyDemand: 2, supplierLeadDays: 10, status: "Critical", daysUntilShortfall: 1 },
-  { id: "PROD-0331", name: "Electric Motor 15KW", category: "Machinery", sku: "EM15-331", stock: 40, minStock: 10, unit: "Units", branch: "Main Warehouse", avgDailyDemand: 3, supplierLeadDays: 21, status: "Transfer Opportunity", daysUntilShortfall: null },
+  { id: "PROD-0441", name: "Industrial Filter Type A", category: "Filters", sku: "IFA-441", oemNumber: "IF-A-441", barcode: "6291100441001", fitment: "Toyota Hilux 2018-2023", stock: 24, minStock: 20, unit: "Units", branch: "Main Warehouse", avgDailyDemand: 6, supplierLeadDays: 7, status: "Low Stock", daysUntilShortfall: 4 },
+  { id: "PROD-0220", name: "Hydraulic Pump 5HP", category: "Machinery", sku: "HP5-220", oemNumber: "44310-0K010", barcode: "6291100220002", fitment: "Toyota Land Cruiser 2016-2022", stock: 8, minStock: 5, unit: "Units", branch: "Main Warehouse", avgDailyDemand: 1, supplierLeadDays: 14, status: "OK", daysUntilShortfall: null },
+  { id: "PROD-0115", name: "Safety Valve 2-inch", category: "Valves", sku: "SV2-115", oemNumber: "SV-200-115", barcode: "6291100115008", fitment: "Nissan Patrol 2015-2021", stock: 150, minStock: 50, unit: "Units", branch: "Branch A", avgDailyDemand: 5, supplierLeadDays: 5, status: "OK", daysUntilShortfall: null },
+  { id: "PROD-0088", name: "Pressure Gauge 100 PSI", category: "Instruments", sku: "PG100-088", oemNumber: "83520-60020", barcode: "6291100088006", fitment: "Toyota Prado 2017-2022", stock: 3, minStock: 10, unit: "Units", branch: "Branch B", avgDailyDemand: 2, supplierLeadDays: 10, status: "Critical", daysUntilShortfall: 1 },
+  { id: "PROD-0331", name: "Electric Motor 15KW", category: "Machinery", sku: "EM15-331", oemNumber: "EM-15KW-331", barcode: "6291100331005", fitment: "Universal workshop equipment", stock: 40, minStock: 10, unit: "Units", branch: "Main Warehouse", avgDailyDemand: 3, supplierLeadDays: 21, status: "Transfer Opportunity", daysUntilShortfall: null },
 ];
 
 export const mockSalesOrders = [

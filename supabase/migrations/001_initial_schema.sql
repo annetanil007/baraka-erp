@@ -43,6 +43,32 @@ create table if not exists public.sales_orders (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.products (
+  id uuid primary key default gen_random_uuid(),
+  product_code text not null unique,
+  name text not null,
+  category text,
+  sku text not null unique,
+  oem_number text,
+  barcode text,
+  vehicle_fitment text,
+  unit text not null default 'Units',
+  stock numeric(14,2) not null default 0,
+  minimum_stock numeric(14,2) not null default 0,
+  branch_id uuid references public.branches(id),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.inventory_movements (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid not null references public.products(id) on delete cascade,
+  movement_type text not null check (movement_type in ('Receipt', 'Sale', 'Transfer', 'Adjustment', 'Return')),
+  quantity numeric(14,2) not null,
+  reference text,
+  created_by uuid references auth.users(id),
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.audit_logs (
   id bigint generated always as identity primary key,
   actor_id uuid references auth.users(id),
@@ -57,6 +83,8 @@ alter table public.branches enable row level security;
 alter table public.profiles enable row level security;
 alter table public.customers enable row level security;
 alter table public.sales_orders enable row level security;
+alter table public.products enable row level security;
+alter table public.inventory_movements enable row level security;
 alter table public.audit_logs enable row level security;
 
 create policy "Authenticated users can read branches" on public.branches for select to authenticated using (true);
@@ -67,6 +95,10 @@ create policy "Authenticated users can read customers" on public.customers for s
 create policy "Authenticated users can manage customers" on public.customers for all to authenticated using (true) with check (true);
 create policy "Authenticated users can read sales orders" on public.sales_orders for select to authenticated using (true);
 create policy "Authenticated users can manage sales orders" on public.sales_orders for all to authenticated using (true) with check (true);
+create policy "Authenticated users can read products" on public.products for select to authenticated using (true);
+create policy "Authenticated users can manage products" on public.products for all to authenticated using (true) with check (true);
+create policy "Authenticated users can read inventory movements" on public.inventory_movements for select to authenticated using (true);
+create policy "Authenticated users can create inventory movements" on public.inventory_movements for insert to authenticated with check (created_by = auth.uid());
 create policy "Authenticated users can read audit logs" on public.audit_logs for select to authenticated using (true);
 create policy "Authenticated users can create audit logs" on public.audit_logs for insert to authenticated with check (actor_id = auth.uid());
 

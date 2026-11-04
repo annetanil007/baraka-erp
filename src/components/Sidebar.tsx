@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, ShoppingCart, DollarSign, BarChart2, Settings,
   Shield, ChevronDown, TrendingUp,
 } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
+import { createClient } from "@/lib/supabase/client";
 
 type NavItem = {
   label: string;
@@ -19,7 +20,7 @@ type NavItem = {
 const ARABIC_LABELS: Record<string, string> = {
   Dashboard: "لوحة التحكم", Operations: "العمليات", Sales: "المبيعات", Customers: "العملاء", Inventory: "المخزون", Transfers: "التحويلات",
   Procurement: "المشتريات", "Purchase Requests": "طلبات الشراء", "Purchase Orders": "أوامر الشراء", Suppliers: "الموردون", Receiving: "الاستلام",
-  Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", Control: "الرقابة",
+  Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", "Cost of Goods Sold": "تكلفة البضائع المباعة", Control: "الرقابة",
   Exceptions: "الاستثناءات", Reviews: "المراجعات", Approvals: "الموافقات", Reconciliation: "التسوية", Reports: "التقارير", "Operational Reports": "التقارير التشغيلية",
   "Financial Reports": "التقارير المالية", "Inventory Reports": "تقارير المخزون", Administration: "الإدارة", Users: "المستخدمون", "Roles & Permissions": "الأدوار والصلاحيات", Branches: "الفروع", "System Settings": "إعدادات النظام",
 };
@@ -54,6 +55,7 @@ const NAV: NavItem[] = [
       { label: "Invoices", href: "/finance/invoices" },
       { label: "Payments", href: "/finance/payments" },
       { label: "Expenses", href: "/finance/expenses" },
+      { label: "Cost of Goods Sold", href: "/finance/cogs" },
     ],
   },
   {
@@ -89,7 +91,13 @@ const NAV: NavItem[] = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { language } = useLanguage();
+  const signOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
   const label = (value: string) => language === "ar" ? ARABIC_LABELS[value] || value : value;
   const [expanded, setExpanded] = useState<string[]>([]);
 
@@ -162,10 +170,12 @@ export default function Sidebar() {
       </nav>
 
       {/* User footer */}
-      <div style={{
+      <button type="button" onClick={signOut} title="Sign out" style={{
         padding: "16px 20px",
         borderTop: "1px solid rgba(255,255,255,0.08)",
         display: "flex", alignItems: "center", gap: 10,
+        width: "100%", borderLeft: 0, borderRight: 0, borderBottom: 0,
+        background: "transparent", textAlign: "left", cursor: "pointer",
       }}>
         <div style={{
           width: 32, height: 32, borderRadius: "50%",
@@ -179,7 +189,7 @@ export default function Sidebar() {
           <div style={{ fontSize: 12.5, fontWeight: 500, color: "#fff" }}>Finance Manager</div>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>Head Office</div>
         </div>
-      </div>
+      </button>
     </aside>
   );
 }

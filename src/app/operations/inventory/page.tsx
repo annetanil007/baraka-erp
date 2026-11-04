@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { mockInventory } from "@/lib/mock-data";
 import { AlertTriangle, TrendingDown, ArrowRightLeft, Plus } from "lucide-react";
 import { useLocalStorage } from "@/lib/useLocalStorage";
@@ -16,6 +16,8 @@ const STATUS_CLASS: Record<string, string> = {
 export default function InventoryPage() {
   const [products, setProducts] = useLocalStorage("baraka:inventory", mockInventory);
   const [dialog, setDialog] = useState(false);
+  const [search, setSearch] = useState("");
+  const filteredProducts = useMemo(() => products.filter((product) => [product.name, product.sku, product.oemNumber, product.barcode, product.fitment, product.category].some((value) => String(value || "").toLowerCase().includes(search.toLowerCase()))), [products, search]);
   const critical = products.filter((p) => p.status === "Critical");
   const lowStock = products.filter((p) => p.status === "Low Stock");
   const addProduct = (event: React.FormEvent<HTMLFormElement>) => {
@@ -26,7 +28,10 @@ export default function InventoryPage() {
     const category = String(form.get("category") || "General");
     const stock = Number(form.get("stock") || 0);
     const minStock = Number(form.get("minStock") || 0);
-    setProducts((current) => [{ id: `PROD-${String(500 + current.length).padStart(4, "0")}`, name, category, sku, stock, minStock, unit: "Units", branch: "Main Warehouse", avgDailyDemand: 0, supplierLeadDays: 0, status: stock <= minStock ? "Low Stock" : "OK", daysUntilShortfall: null }, ...current]);
+    const oemNumber = String(form.get("oemNumber") || "Review OEM");
+    const barcode = String(form.get("barcode") || "Review barcode");
+    const fitment = String(form.get("fitment") || "Universal");
+    setProducts((current) => [{ id: `PROD-${String(500 + current.length).padStart(4, "0")}`, name, category, sku, oemNumber, barcode, fitment, stock, minStock, unit: "Units", branch: "Main Warehouse", avgDailyDemand: 0, supplierLeadDays: 0, status: stock <= minStock ? "Low Stock" : "OK", daysUntilShortfall: null }, ...current]);
     setDialog(false);
   };
 
@@ -69,6 +74,7 @@ export default function InventoryPage() {
       )}
 
       {/* Table */}
+      <div className="toolbar inventory-toolbar"><div className="search-bar module-search"><span className="search-prefix">Part</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name, OEM, barcode, vehicle..." /></div><span className="module-result-count">{filteredProducts.length} of {products.length} parts</span></div>
       <div className="card">
         <div className="table-container">
           <table className="data-table">
@@ -76,6 +82,8 @@ export default function InventoryPage() {
               <tr>
                 <th>Product</th>
                 <th>SKU</th>
+                <th>OEM / Barcode</th>
+                <th>Vehicle fitment</th>
                 <th>Category</th>
                 <th>Branch</th>
                 <th>Stock</th>
@@ -87,13 +95,15 @@ export default function InventoryPage() {
               </tr>
             </thead>
             <tbody>
-              {products.map((item) => (
+              {filteredProducts.map((item) => (
                 <tr key={item.id}>
                   <td>
                     <div style={{ fontWeight: 500 }}>{item.name}</div>
                     <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>{item.id}</div>
                   </td>
                   <td style={{ fontFamily: "monospace", fontSize: 12 }}>{item.sku}</td>
+                  <td><div className="mono-cell">{item.oemNumber}</div><div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 3 }}>{item.barcode}</div></td>
+                  <td style={{ color: "var(--color-text-secondary)", maxWidth: 180 }}>{item.fitment}</td>
                   <td><span className="tag">{item.category}</span></td>
                   <td style={{ color: "var(--color-text-secondary)" }}>{item.branch}</td>
                   <td style={{
@@ -133,7 +143,7 @@ export default function InventoryPage() {
       </div>
       {dialog && <div className="dialog-backdrop" role="presentation" onClick={() => setDialog(false)}><form className="dialog" role="dialog" aria-modal="true" onSubmit={addProduct} onClick={(event) => event.stopPropagation()}>
         <div className="dialog-header"><div><div className="card-title">Add product</div><div className="card-subtitle">Create a stock item for the main warehouse.</div></div><button type="button" className="btn btn-ghost btn-sm" onClick={() => setDialog(false)}>Close</button></div>
-        <div className="dialog-body"><div className="form-group"><label className="form-label" htmlFor="product-name">Product name</label><input id="product-name" name="name" className="form-input" placeholder="e.g. Replacement filter" required autoFocus /></div><div className="grid-2"><div className="form-group"><label className="form-label" htmlFor="product-sku">SKU</label><input id="product-sku" name="sku" className="form-input" placeholder="SKU-001" required /></div><div className="form-group"><label className="form-label" htmlFor="product-category">Category</label><input id="product-category" name="category" className="form-input" placeholder="Category" required /></div></div><div className="grid-2"><div className="form-group"><label className="form-label" htmlFor="product-stock">Opening stock</label><input id="product-stock" name="stock" className="form-input" type="number" min="0" required /></div><div className="form-group"><label className="form-label" htmlFor="product-min-stock">Minimum stock</label><input id="product-min-stock" name="minStock" className="form-input" type="number" min="0" required /></div></div><div className="dialog-actions"><button type="button" className="btn btn-secondary" onClick={() => setDialog(false)}>Cancel</button><button className="btn btn-primary" type="submit">Save product</button></div></div>
+        <div className="dialog-body"><div className="form-group"><label className="form-label" htmlFor="product-name">Product name</label><input id="product-name" name="name" className="form-input" placeholder="e.g. Brake pad set" required autoFocus /></div><div className="grid-2"><div className="form-group"><label className="form-label" htmlFor="product-sku">Internal SKU</label><input id="product-sku" name="sku" className="form-input" placeholder="SKU-001" required /></div><div className="form-group"><label className="form-label" htmlFor="product-category">Category</label><input id="product-category" name="category" className="form-input" placeholder="Brakes, filters..." required /></div></div><div className="grid-2"><div className="form-group"><label className="form-label" htmlFor="product-oem">OEM / part number</label><input id="product-oem" name="oemNumber" className="form-input" placeholder="e.g. 04465-0K240" required /></div><div className="form-group"><label className="form-label" htmlFor="product-barcode">Barcode</label><input id="product-barcode" name="barcode" className="form-input" inputMode="numeric" placeholder="Scan or enter barcode" required /></div></div><div className="form-group"><label className="form-label" htmlFor="product-fitment">Vehicle fitment</label><input id="product-fitment" name="fitment" className="form-input" placeholder="Make, model, year range, engine" required /></div><div className="grid-2"><div className="form-group"><label className="form-label" htmlFor="product-stock">Opening stock</label><input id="product-stock" name="stock" className="form-input" type="number" min="0" required /></div><div className="form-group"><label className="form-label" htmlFor="product-min-stock">Minimum stock</label><input id="product-min-stock" name="minStock" className="form-input" type="number" min="0" required /></div></div><div className="dialog-actions"><button type="button" className="btn btn-secondary" onClick={() => setDialog(false)}>Cancel</button><button className="btn btn-primary" type="submit">Save product</button></div></div>
       </form></div>}
     </div>
   );

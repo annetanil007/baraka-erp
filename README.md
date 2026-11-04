@@ -14,6 +14,7 @@ Open the local URL shown by Next.js, usually `http://localhost:3000`.
 ## Current features
 
 - Operations dashboard with analytics and monthly charts
+- Owner Command Center with business pulse, recommended actions, profitability signals, and stock watch
 - Sales orders and customer management
 - Inventory, stock alerts, and branch transfers
 - Purchase requests, purchase orders, suppliers, and receiving
@@ -35,10 +36,10 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 ```
 
-4. In Supabase **SQL Editor**, run [001_initial_schema.sql](supabase/migrations/001_initial_schema.sql).
+4. In Supabase **SQL Editor**, run [001_initial_schema.sql](supabase/migrations/001_initial_schema.sql), then [002_cogs_foundation.sql](supabase/migrations/002_cogs_foundation.sql), then [003_cogs_posting_engine.sql](supabase/migrations/003_cogs_posting_engine.sql).
 5. Restart the development server.
 
-The migration creates branches, profiles, customers, sales orders, and audit logs with Row Level Security enabled. The current demo UI uses browser storage and mock data while the Supabase clients are ready for persistent query integration.
+The migrations create branches, profiles, customers, sales orders, inventory, and the COGS foundation with Row Level Security enabled. The posting engine creates cost layers for receipts and posts COGS atomically for sale movements using each product's FIFO or weighted-average method. The current demo UI uses browser storage and mock data while the Supabase clients are ready for persistent query integration.
 
 ## Optional invoice AI
 
