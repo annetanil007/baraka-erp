@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, ShoppingCart, DollarSign, BarChart2, Settings,
@@ -118,7 +119,9 @@ export default function Sidebar() {
     <aside className="sidebar">
       {/* Logo */}
       <div className="sidebar-logo">
-        <h1>Baraka</h1>
+        <Link href="/" className="sidebar-brand" aria-label="Baraka home">
+          <Image src="/baraka-logo.svg" alt="Baraka" width={138} height={46} priority />
+        </Link>
         <p>{language === "ar" ? "منصة عمليات المؤسسات" : "Enterprise Operations Platform"}</p>
       </div>
 
