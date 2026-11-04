@@ -122,7 +122,6 @@ export default function Sidebar() {
         <Link href="/" className="sidebar-brand" aria-label="Baraka home">
           <Image src="/baraka-logo.svg" alt="Baraka" width={138} height={46} priority />
         </Link>
-        <p>{language === "ar" ? "منصة عمليات المؤسسات" : "Enterprise Operations Platform"}</p>
       </div>
 
       {/* Nav items */}
