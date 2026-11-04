@@ -15,6 +15,7 @@ Open the local URL shown by Next.js, usually `http://localhost:3000`.
 
 - Operations dashboard with analytics and monthly charts
 - Owner Command Center with business pulse, recommended actions, profitability signals, and stock watch
+- Cash Flow Center with liquidity forecast, collections, commitments, and safety-buffer recommendations
 - Sales orders and customer management
 - Inventory, stock alerts, and branch transfers
 - Purchase requests, purchase orders, suppliers, and receiving

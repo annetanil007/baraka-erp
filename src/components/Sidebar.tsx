@@ -20,7 +20,7 @@ type NavItem = {
 const ARABIC_LABELS: Record<string, string> = {
   Dashboard: "لوحة التحكم", Operations: "العمليات", Sales: "المبيعات", Customers: "العملاء", Inventory: "المخزون", Transfers: "التحويلات",
   Procurement: "المشتريات", "Purchase Requests": "طلبات الشراء", "Purchase Orders": "أوامر الشراء", Suppliers: "الموردون", Receiving: "الاستلام",
-  Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", "Cost of Goods Sold": "تكلفة البضائع المباعة", Control: "الرقابة",
+  Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", "Cash Flow": "التدفق النقدي", "Cost of Goods Sold": "تكلفة البضائع المباعة", Control: "الرقابة",
   Exceptions: "الاستثناءات", Reviews: "المراجعات", Approvals: "الموافقات", Reconciliation: "التسوية", Reports: "التقارير", "Operational Reports": "التقارير التشغيلية",
   "Financial Reports": "التقارير المالية", "Inventory Reports": "تقارير المخزون", Administration: "الإدارة", Users: "المستخدمون", "Roles & Permissions": "الأدوار والصلاحيات", Branches: "الفروع", "System Settings": "إعدادات النظام",
 };
@@ -55,6 +55,7 @@ const NAV: NavItem[] = [
       { label: "Invoices", href: "/finance/invoices" },
       { label: "Payments", href: "/finance/payments" },
       { label: "Expenses", href: "/finance/expenses" },
+      { label: "Cash Flow", href: "/finance/cash-flow" },
       { label: "Cost of Goods Sold", href: "/finance/cogs" },
     ],
   },
