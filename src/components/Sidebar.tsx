@@ -22,7 +22,7 @@ const ARABIC_LABELS: Record<string, string> = {
   Procurement: "المشتريات", "Purchase Requests": "طلبات الشراء", "Purchase Orders": "أوامر الشراء", Suppliers: "الموردون", Receiving: "الاستلام",
   Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", "Cash Flow": "التدفق النقدي", "Cost of Goods Sold": "تكلفة البضائع المباعة", Control: "الرقابة",
   Exceptions: "الاستثناءات", Reviews: "المراجعات", Approvals: "الموافقات", Reconciliation: "التسوية", Reports: "التقارير", "Operational Reports": "التقارير التشغيلية",
-  "Financial Reports": "التقارير المالية", "Inventory Reports": "تقارير المخزون", Administration: "الإدارة", Users: "المستخدمون", "Roles & Permissions": "الأدوار والصلاحيات", Branches: "الفروع", "System Settings": "إعدادات النظام",
+  "Financial Reports": "التقارير المالية", "Inventory Reports": "تقارير المخزون", "Executive Intelligence": "الذكاء التنفيذي", Administration: "الإدارة", Users: "المستخدمون", "Roles & Permissions": "الأدوار والصلاحيات", Branches: "الفروع", "System Settings": "إعدادات النظام",
 };
 
 const NAV: NavItem[] = [
@@ -77,6 +77,7 @@ const NAV: NavItem[] = [
       { label: "Operational Reports", href: "/reports/operational" },
       { label: "Financial Reports", href: "/reports/financial" },
       { label: "Inventory Reports", href: "/reports/inventory" },
+      { label: "Executive Intelligence", href: "/reports/executive" },
     ],
   },
   {

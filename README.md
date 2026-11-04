@@ -21,6 +21,8 @@ Open the local URL shown by Next.js, usually `http://localhost:3000`.
 - Saved module views for repeatable search and status workflows
 - Actionable workflow reminders for pending approvals and operational exceptions
 - Premium module workspaces with bulk actions, inline editing, keyboard shortcuts, and actionable command-palette actions
+- Executive Intelligence report with daily briefing, change explanations, cash-risk, margin, inventory-capital, and branch comparison views
+- Enterprise controls for MFA policy, retention targets, integration access, settings backup/import, and CI validation
 - Sales orders and customer management
 - Inventory, stock alerts, and branch transfers
 - Purchase requests, purchase orders, suppliers, and receiving

@@ -31,13 +31,14 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
   "/reports/operational": ["Reports", "Operational Reports"],
   "/reports/financial": ["Reports", "Financial Reports"],
   "/reports/inventory": ["Reports", "Inventory Reports"],
+  "/reports/executive": ["Reports", "Executive Intelligence"],
   "/admin/users": ["Administration", "Users"],
   "/admin/roles": ["Administration", "Roles & Permissions"],
   "/admin/branches": ["Administration", "Branches"],
   "/admin/settings": ["Administration", "System Settings"],
 };
 
-const ARABIC_CRUMBS: Record<string, string> = { Dashboard: "لوحة التحكم", Operations: "العمليات", Sales: "المبيعات", Customers: "العملاء", Inventory: "المخزون", "Inventory Intelligence": "ذكاء المخزون", Transfers: "التحويلات", Procurement: "المشتريات", "Purchase Requests": "طلبات الشراء", "Purchase Orders": "أوامر الشراء", Suppliers: "الموردون", Receiving: "الاستلام", Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", "Cash Flow": "التدفق النقدي", Control: "الرقابة", Exceptions: "الاستثناءات", Reviews: "المراجعات", Approvals: "الموافقات", Reconciliation: "التسوية", Reports: "التقارير", "Operational Reports": "التقارير التشغيلية", "Financial Reports": "التقارير المالية", "Inventory Reports": "تقارير المخزون", Administration: "الإدارة", Users: "المستخدمون", "Roles & Permissions": "الأدوار والصلاحيات", Branches: "الفروع", "System Settings": "إعدادات النظام" };
+const ARABIC_CRUMBS: Record<string, string> = { Dashboard: "لوحة التحكم", Operations: "العمليات", Sales: "المبيعات", Customers: "العملاء", Inventory: "المخزون", "Inventory Intelligence": "ذكاء المخزون", Transfers: "التحويلات", Procurement: "المشتريات", "Purchase Requests": "طلبات الشراء", "Purchase Orders": "أوامر الشراء", Suppliers: "الموردون", Receiving: "الاستلام", Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", "Cash Flow": "التدفق النقدي", Control: "الرقابة", Exceptions: "الاستثناءات", Reviews: "المراجعات", Approvals: "الموافقات", Reconciliation: "التسوية", Reports: "التقارير", "Operational Reports": "التقارير التشغيلية", "Financial Reports": "التقارير المالية", "Inventory Reports": "تقارير المخزون", "Executive Intelligence": "الذكاء التنفيذي", Administration: "الإدارة", Users: "المستخدمون", "Roles & Permissions": "الأدوار والصلاحيات", Branches: "الفروع", "System Settings": "إعدادات النظام" };
 
 type CommandItem = { label: string; detail: string; href?: string; icon: React.ElementType; keywords?: string; action?: "create" | "export" };
 type WorkflowNotification = { id: string; title: string; detail: string; href: string; tone: "danger" | "warning" | "info" };
@@ -51,6 +52,7 @@ const COMMAND_ITEMS: CommandItem[] = [
   { label: "Cash Flow Center", detail: "Finance", href: "/finance/cash-flow", icon: WalletCards, keywords: "cash liquidity forecast collections payments" },
   { label: "Customers", detail: "Operations", href: "/operations/customers", icon: UsersRound, keywords: "clients accounts" },
   { label: "Financial Reports", detail: "Reports", href: "/reports/financial", icon: BarChart3, keywords: "finance report profit" },
+  { label: "Executive Intelligence", detail: "Reports", href: "/reports/executive", icon: BarChart3, keywords: "briefing changes branch margin cash owner" },
   { label: "Open Exceptions", detail: "Control", href: "/control/exceptions", icon: Bell, keywords: "risk issue alert" },
   { label: "Create new record", detail: "Action", icon: Plus, action: "create", keywords: "add new create record" },
   { label: "Export current view", detail: "Action", icon: Download, action: "export", keywords: "download csv spreadsheet" },
