@@ -34,6 +34,7 @@ const NAV: NavItem[] = [
       { label: "Sales", href: "/operations/sales" },
       { label: "Customers", href: "/operations/customers" },
       { label: "Inventory", href: "/operations/inventory" },
+      { label: "Inventory Intelligence", href: "/operations/inventory/intelligence" },
       { label: "Transfers", href: "/operations/transfers" },
     ],
   },
