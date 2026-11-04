@@ -39,6 +39,8 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 4. In Supabase **SQL Editor**, run [001_initial_schema.sql](supabase/migrations/001_initial_schema.sql), then [002_cogs_foundation.sql](supabase/migrations/002_cogs_foundation.sql), then [003_cogs_posting_engine.sql](supabase/migrations/003_cogs_posting_engine.sql).
 5. Restart the development server.
 
+For local UI preview only, set `NEXT_PUBLIC_DEMO_MODE=true` in `.env.local`. This bypasses authentication only when running in development; production always requires Supabase authentication.
+
 The migrations create branches, profiles, customers, sales orders, inventory, and the COGS foundation with Row Level Security enabled. The posting engine creates cost layers for receipts and posts COGS atomically for sale movements using each product's FIFO or weighted-average method. The current demo UI uses browser storage and mock data while the Supabase clients are ready for persistent query integration.
 
 ## Optional invoice AI

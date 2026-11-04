@@ -1,15 +1,19 @@
-import { mockKPIs, mockExceptions, mockRecentActivity, mockApprovals, mockInventory } from "@/lib/mock-data";
+import { mockExceptions, mockRecentActivity, mockApprovals } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
 import {
-  AlertTriangle, ArrowDownRight, ArrowUpRight, Boxes, Clock3, Command,
+  AlertTriangle, ArrowDownRight, ArrowUpRight, Boxes, Clock3,
   CreditCard, ExternalLink, PackageCheck, Sparkles, WalletCards,
 } from "lucide-react";
 import Link from "next/link";
 import AnalyticsCharts from "@/components/AnalyticsCharts";
+import { getDashboardData } from "@/lib/dashboard-data";
+import CommandTrigger from "@/components/CommandTrigger";
 
 const PRIORITY_COLOR: Record<string, string> = {
   Critical: "critical", High: "high", Medium: "medium", Low: "low",
 };
+
+export const dynamic = "force-dynamic";
 
 const actions = [
   { icon: AlertTriangle, tone: "danger", title: "Resolve invoice mismatch", detail: "PO-2026-00441 is AED 10,000 above approval.", href: "/control/exceptions/EX-2026-00184", label: "Review now" },
@@ -17,16 +21,16 @@ const actions = [
   { icon: CreditCard, tone: "info", title: "Approve supplier invoice", detail: "3 invoices are waiting for finance review.", href: "/finance/invoices", label: "Open queue" },
 ];
 
-const insights = [
-  { label: "Gross margin", value: "AED 1.90M", change: "+8.6%", note: "vs. last month", direction: "up" },
-  { label: "Capital in inventory", value: "AED 4.26M", change: "AED 184K", note: "slow-moving", direction: "down" },
-  { label: "Receivables due", value: "AED 682K", change: "14 accounts", note: "need follow-up", direction: "down" },
-];
-
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const dashboardData = await getDashboardData();
+  const insights = [
+    { label: "Gross margin", value: "AED 1.90M", change: "+8.6%", note: "vs. last month", direction: "up" },
+    { label: "Capital in inventory", value: "AED 4.26M", change: "AED 184K", note: "slow-moving", direction: "down" },
+    { label: "Receivables due", value: formatCurrency(dashboardData.receivablesDue), change: "live balance", note: "needs follow-up", direction: "down" },
+  ];
   const topExceptions = mockExceptions.slice(0, 3);
   const pendingApprovals = mockApprovals.filter((a) => a.status === "Pending").slice(0, 3);
-  const lowStock = mockInventory.filter((item) => item.status !== "OK").slice(0, 3);
+  const lowStock = dashboardData.stockWatch;
 
   return (
     <div className="owner-dashboard">
@@ -37,14 +41,14 @@ export default function DashboardPage() {
           <p className="page-description">Here&apos;s what deserves your attention across Baraka today.</p>
         </div>
         <div className="owner-hero-actions">
-          <button className="command-button" type="button"><Command size={14} /><span>Search anything</span><kbd>⌘ K</kbd></button>
+          <CommandTrigger />
           <Link className="btn btn-primary btn-sm" href="/operations/sales">New sale <ArrowUpRight size={13} /></Link>
         </div>
       </section>
 
       <section className="business-pulse">
         <div className="pulse-copy">
-          <span className="pulse-label">Business pulse · 02 Sep 2026</span>
+          <span className="pulse-label">Business pulse · {dashboardData.source === "demo" ? "Demo workspace" : "Live workspace"}</span>
           <strong>Healthy momentum, with 3 decisions waiting.</strong>
           <span className="pulse-note">Revenue is ahead of yesterday while inventory risk is concentrated in 2 parts.</span>
         </div>
@@ -53,7 +57,7 @@ export default function DashboardPage() {
       </section>
 
       <div className="owner-kpi-grid">
-        <div className="owner-kpi owner-kpi-featured"><div className="kpi-label">Today&apos;s revenue</div><strong>{formatCurrency(mockKPIs.todaysRevenue)}</strong><span className="kpi-trend-up"><ArrowUpRight size={13} /> {mockKPIs.revenueChange}% vs yesterday</span><div className="mini-bars"><i /><i /><i /><i /><i /><i /><i /></div></div>
+        <div className="owner-kpi owner-kpi-featured"><div className="kpi-label">Today&apos;s revenue</div><strong>{formatCurrency(dashboardData.todaysRevenue)}</strong><span className={dashboardData.revenueChange >= 0 ? "kpi-trend-up" : "kpi-trend-down"}>{dashboardData.revenueChange >= 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />} {Math.abs(dashboardData.revenueChange)}% vs yesterday</span><div className="mini-bars"><i /><i /><i /><i /><i /><i /><i /></div></div>
         {insights.map((insight) => <div className="owner-kpi" key={insight.label}><div className="kpi-label">{insight.label}</div><strong>{insight.value}</strong><span className={insight.direction === "up" ? "kpi-trend-up" : "kpi-trend-down"}>{insight.direction === "up" ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />} {insight.change} <em>{insight.note}</em></span></div>)}
       </div>
 
