@@ -20,6 +20,7 @@ Open the local URL shown by Next.js, usually `http://localhost:3000`.
 - Approval Center with risk-prioritized queues, exposure totals, and recommended decision focus
 - Saved module views for repeatable search and status workflows
 - Actionable workflow reminders for pending approvals and operational exceptions
+- Premium module workspaces with bulk actions, inline editing, keyboard shortcuts, and actionable command-palette actions
 - Sales orders and customer management
 - Inventory, stock alerts, and branch transfers
 - Purchase requests, purchase orders, suppliers, and receiving

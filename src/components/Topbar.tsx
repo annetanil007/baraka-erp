@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, HelpCircle, X, Languages, ArrowRight, FilePlus2, BarChart3, Boxes, UsersRound, WalletCards } from "lucide-react";
+import { Bell, Search, HelpCircle, X, Languages, ArrowRight, FilePlus2, BarChart3, Boxes, UsersRound, WalletCards, Plus, Download, Clock3 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -39,7 +39,7 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
 
 const ARABIC_CRUMBS: Record<string, string> = { Dashboard: "لوحة التحكم", Operations: "العمليات", Sales: "المبيعات", Customers: "العملاء", Inventory: "المخزون", "Inventory Intelligence": "ذكاء المخزون", Transfers: "التحويلات", Procurement: "المشتريات", "Purchase Requests": "طلبات الشراء", "Purchase Orders": "أوامر الشراء", Suppliers: "الموردون", Receiving: "الاستلام", Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", "Cash Flow": "التدفق النقدي", Control: "الرقابة", Exceptions: "الاستثناءات", Reviews: "المراجعات", Approvals: "الموافقات", Reconciliation: "التسوية", Reports: "التقارير", "Operational Reports": "التقارير التشغيلية", "Financial Reports": "التقارير المالية", "Inventory Reports": "تقارير المخزون", Administration: "الإدارة", Users: "المستخدمون", "Roles & Permissions": "الأدوار والصلاحيات", Branches: "الفروع", "System Settings": "إعدادات النظام" };
 
-type CommandItem = { label: string; detail: string; href: string; icon: React.ElementType; keywords?: string };
+type CommandItem = { label: string; detail: string; href?: string; icon: React.ElementType; keywords?: string; action?: "create" | "export" };
 type WorkflowNotification = { id: string; title: string; detail: string; href: string; tone: "danger" | "warning" | "info" };
 
 const COMMAND_ITEMS: CommandItem[] = [
@@ -52,6 +52,9 @@ const COMMAND_ITEMS: CommandItem[] = [
   { label: "Customers", detail: "Operations", href: "/operations/customers", icon: UsersRound, keywords: "clients accounts" },
   { label: "Financial Reports", detail: "Reports", href: "/reports/financial", icon: BarChart3, keywords: "finance report profit" },
   { label: "Open Exceptions", detail: "Control", href: "/control/exceptions", icon: Bell, keywords: "risk issue alert" },
+  { label: "Create new record", detail: "Action", icon: Plus, action: "create", keywords: "add new create record" },
+  { label: "Export current view", detail: "Action", icon: Download, action: "export", keywords: "download csv spreadsheet" },
+  { label: "Show overdue items", detail: "Action", href: "/control/exceptions", icon: Clock3, keywords: "late overdue urgent follow up" },
 ];
 
 export default function Topbar() {
@@ -81,7 +84,11 @@ export default function Topbar() {
   const workflowNotifications = notificationCandidates.filter((notification) => !dismissedNotifications.includes(notification.id));
   const dismissNotification = (id: string) => setDismissedNotifications((current) => [...current, id]);
   const openCommand = () => { setCommandOpen(true); setQuery(""); setActiveIndex(0); };
-  const navigateToCommand = (href: string) => { setCommandOpen(false); router.push(href); };
+  const runCommand = (item: CommandItem) => {
+    setCommandOpen(false);
+    if (item.action) window.dispatchEvent(new CustomEvent("baraka:module-action", { detail: { action: item.action } }));
+    else if (item.href) router.push(item.href);
+  };
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
@@ -139,9 +146,9 @@ export default function Topbar() {
       </div>}
       {commandOpen && <div className="command-backdrop" role="presentation" onClick={() => setCommandOpen(false)}>
         <div className="command-palette" role="dialog" aria-modal="true" aria-label="Command search" onClick={(event) => event.stopPropagation()}>
-          <div className="command-input-row"><Search size={17} /><input ref={searchRef} autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} onKeyDown={(event) => { if (event.key === "ArrowDown") { event.preventDefault(); setActiveIndex((index) => Math.min(index + 1, filteredCommands.length - 1)); } if (event.key === "ArrowUp") { event.preventDefault(); setActiveIndex((index) => Math.max(index - 1, 0)); } if (event.key === "Enter" && filteredCommands[activeIndex]) navigateToCommand(filteredCommands[activeIndex].href); }} placeholder="Search pages, records, or actions..." /></div>
+          <div className="command-input-row"><Search size={17} /><input ref={searchRef} autoFocus value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} onKeyDown={(event) => { if (event.key === "ArrowDown") { event.preventDefault(); setActiveIndex((index) => Math.min(index + 1, filteredCommands.length - 1)); } if (event.key === "ArrowUp") { event.preventDefault(); setActiveIndex((index) => Math.max(index - 1, 0)); } if (event.key === "Enter" && filteredCommands[activeIndex]) runCommand(filteredCommands[activeIndex]); }} placeholder="Search pages, records, or actions..." /></div>
           <div className="command-hint">Jump anywhere in Baraka <span><kbd>↑</kbd><kbd>↓</kbd> navigate <kbd>↵</kbd> open <kbd>esc</kbd> close</span></div>
-          <div className="command-results">{filteredCommands.length > 0 ? filteredCommands.map((item, index) => <button type="button" className={`command-result ${index === activeIndex ? "active" : ""}`} key={item.href} onMouseEnter={() => setActiveIndex(index)} onClick={() => navigateToCommand(item.href)}><span className="command-result-icon"><item.icon size={15} /></span><span><strong>{item.label}</strong><small>{item.detail}</small></span><ArrowRight size={14} className="command-result-arrow" /></button>) : <div className="command-empty">No destinations match “{query}”.</div>}</div>
+          <div className="command-results">{filteredCommands.length > 0 ? filteredCommands.map((item, index) => <button type="button" className={`command-result ${index === activeIndex ? "active" : ""}`} key={`${item.label}-${item.href ?? item.action}`} onMouseEnter={() => setActiveIndex(index)} onClick={() => runCommand(item)}><span className="command-result-icon"><item.icon size={15} /></span><span><strong>{item.label}</strong><small>{item.detail}</small></span><ArrowRight size={14} className="command-result-arrow" /></button>) : <div className="command-empty">No destinations match “{query}”.</div>}</div>
         </div>
       </div>}
     </div>
