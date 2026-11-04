@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Download, Plus, Search } from "lucide-react";
+import { Bookmark, Download, Plus, Search, X } from "lucide-react";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 
 export type ModuleColumn = {
@@ -25,6 +25,7 @@ type ModulePageProps = {
   rows: Record<string, string | number>[];
   stats: ModuleStat[];
 };
+type SavedView = { name: string; query: string; status: string };
 
 const toneColors = {
   danger: "var(--color-danger)",
@@ -46,6 +47,9 @@ export default function ModulePage({ title, description, actionLabel, columns, r
   const [records, setRecords] = useLocalStorage(`baraka:${title.toLowerCase().replaceAll(" ", "-")}`, rows);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("All statuses");
+  const [savedViews, setSavedViews] = useLocalStorage<SavedView[]>(`baraka:${title.toLowerCase().replaceAll(" ", "-")}:views`, []);
+  const [viewDialog, setViewDialog] = useState(false);
+  const [viewName, setViewName] = useState("");
   const [dialog, setDialog] = useState<"create" | "view" | null>(null);
   const [selectedRow, setSelectedRow] = useState<Record<string, string | number> | null>(null);
   const statusOptions = Array.from(new Set(records.map((row) => String(row.status ?? "")).filter(Boolean)));
@@ -73,6 +77,14 @@ export default function ModulePage({ title, description, actionLabel, columns, r
     link.download = `${title.toLowerCase().replaceAll(" ", "-")}.csv`;
     link.click();
     URL.revokeObjectURL(link.href);
+  };
+  const saveView = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const name = viewName.trim();
+    if (!name) return;
+    setSavedViews((current) => [...current.filter((view) => view.name !== name), { name, query, status }]);
+    setViewName("");
+    setViewDialog(false);
   };
 
   return (
@@ -105,6 +117,8 @@ export default function ModulePage({ title, description, actionLabel, columns, r
             {statusOptions.map((option) => <option key={option}>{option}</option>)}
           </select>
         )}
+        {savedViews.length > 0 && <select className="form-input saved-view-select" aria-label="Saved views" value="" onChange={(event) => { const view = savedViews.find((item) => item.name === event.target.value); if (view) { setQuery(view.query); setStatus(view.status); } }}><option value="">Saved views</option>{savedViews.map((view) => <option value={view.name} key={view.name}>{view.name}</option>)}</select>}
+        <button className="btn btn-secondary btn-sm" title="Save current filters as a view" onClick={() => setViewDialog(true)}><Bookmark size={13} /> Save view</button>
         <button className="btn btn-secondary btn-sm" title="Export current records" onClick={exportRows}><Download size={13} /> Export</button>
         <span className="module-result-count">{filteredRows.length} of {records.length} records</span>
       </div>
@@ -139,6 +153,7 @@ export default function ModulePage({ title, description, actionLabel, columns, r
           </div>
         </div>
       )}
+      {viewDialog && <div className="dialog-backdrop" role="presentation" onClick={() => setViewDialog(false)}><form className="dialog saved-view-dialog" role="dialog" aria-modal="true" aria-label="Save view" onSubmit={saveView} onClick={(event) => event.stopPropagation()}><div className="dialog-header"><div><div className="card-title">Save current view</div><div className="card-subtitle">Keep these filters ready for your next visit.</div></div><button type="button" className="btn btn-ghost btn-sm" onClick={() => setViewDialog(false)} aria-label="Close"><X size={14} /></button></div><div className="dialog-body"><div className="form-group"><label className="form-label" htmlFor="saved-view-name">View name</label><input id="saved-view-name" className="form-input" value={viewName} onChange={(event) => setViewName(event.target.value)} placeholder="e.g. High-risk invoices" autoFocus required /></div><div className="saved-view-summary"><span>Search: <b>{query || "All records"}</b></span><span>Status: <b>{status}</b></span></div><div className="dialog-actions"><button type="button" className="btn btn-secondary" onClick={() => setViewDialog(false)}>Cancel</button><button type="submit" className="btn btn-primary">Save view</button></div></div></form></div>}
     </div>
   );
 }

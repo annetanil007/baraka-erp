@@ -18,6 +18,8 @@ Open the local URL shown by Next.js, usually `http://localhost:3000`.
 - Cash Flow Center with liquidity forecast, collections, commitments, and safety-buffer recommendations
 - Inventory Intelligence with reorder recommendations, dead-stock radar, and branch-transfer opportunities
 - Approval Center with risk-prioritized queues, exposure totals, and recommended decision focus
+- Saved module views for repeatable search and status workflows
+- Actionable workflow reminders for pending approvals and operational exceptions
 - Sales orders and customer management
 - Inventory, stock alerts, and branch transfers
 - Purchase requests, purchase orders, suppliers, and receiving

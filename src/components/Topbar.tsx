@@ -4,6 +4,8 @@ import { Bell, Search, HelpCircle, X, Languages, ArrowRight, FilePlus2, BarChart
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLanguage } from "@/components/LanguageProvider";
+import { useLocalStorage } from "@/lib/useLocalStorage";
+import { mockApprovals } from "@/lib/mock-data";
 
 const BREADCRUMB_MAP: Record<string, string[]> = {
   "/": ["Dashboard"],
@@ -38,6 +40,7 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
 const ARABIC_CRUMBS: Record<string, string> = { Dashboard: "لوحة التحكم", Operations: "العمليات", Sales: "المبيعات", Customers: "العملاء", Inventory: "المخزون", "Inventory Intelligence": "ذكاء المخزون", Transfers: "التحويلات", Procurement: "المشتريات", "Purchase Requests": "طلبات الشراء", "Purchase Orders": "أوامر الشراء", Suppliers: "الموردون", Receiving: "الاستلام", Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", "Cash Flow": "التدفق النقدي", Control: "الرقابة", Exceptions: "الاستثناءات", Reviews: "المراجعات", Approvals: "الموافقات", Reconciliation: "التسوية", Reports: "التقارير", "Operational Reports": "التقارير التشغيلية", "Financial Reports": "التقارير المالية", "Inventory Reports": "تقارير المخزون", Administration: "الإدارة", Users: "المستخدمون", "Roles & Permissions": "الأدوار والصلاحيات", Branches: "الفروع", "System Settings": "إعدادات النظام" };
 
 type CommandItem = { label: string; detail: string; href: string; icon: React.ElementType; keywords?: string };
+type WorkflowNotification = { id: string; title: string; detail: string; href: string; tone: "danger" | "warning" | "info" };
 
 const COMMAND_ITEMS: CommandItem[] = [
   { label: "Owner Command Center", detail: "Dashboard", href: "/", icon: BarChart3, keywords: "home overview pulse" },
@@ -62,7 +65,21 @@ export default function Topbar() {
   const [commandOpen, setCommandOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [approvals] = useLocalStorage("baraka:approvals", mockApprovals);
+  const [dismissedNotifications, setDismissedNotifications] = useLocalStorage<string[]>("baraka:dismissed-notifications", []);
   const filteredCommands = COMMAND_ITEMS.filter((item) => `${item.label} ${item.detail} ${item.keywords ?? ""}`.toLowerCase().includes(query.toLowerCase())).slice(0, 7);
+  const notificationCandidates: WorkflowNotification[] = [
+    ...approvals.filter((approval) => approval.status === "Pending").slice(0, 3).map<WorkflowNotification>((approval) => ({
+      id: `approval-${approval.id}`,
+      title: `Approval waiting: ${approval.reference}`,
+      detail: `${approval.riskLevel} risk · ${approval.requestedBy}`,
+      href: "/control/approvals",
+      tone: approval.riskLevel === "Critical" || approval.riskLevel === "High" ? "danger" as const : "warning" as const,
+    })),
+    { id: "inventory-shortfall", title: "Inventory shortfall projected", detail: "PROD-0441 · review reorder plan", href: "/operations/inventory/intelligence", tone: "info" },
+  ];
+  const workflowNotifications = notificationCandidates.filter((notification) => !dismissedNotifications.includes(notification.id));
+  const dismissNotification = (id: string) => setDismissedNotifications((current) => [...current, id]);
   const openCommand = () => { setCommandOpen(true); setQuery(""); setActiveIndex(0); };
   const navigateToCommand = (href: string) => { setCommandOpen(false); router.push(href); };
   useEffect(() => {
@@ -109,7 +126,7 @@ export default function Topbar() {
         <button className="language-toggle" type="button" onClick={toggleLanguage} title={language === "en" ? "Switch to Arabic" : "التبديل إلى الإنجليزية"} aria-label={language === "en" ? "Switch to Arabic" : "Switch to English"}><Languages size={15} /><span>{language === "en" ? "العربية" : "English"}</span></button>
         <button className="notif-btn" title="Notifications" onClick={() => setPanel(panel === "notifications" ? null : "notifications")}>
           <Bell size={16} style={{ color: "var(--color-text-secondary)" }} />
-          <span className="notif-dot" />
+          {workflowNotifications.length > 0 && <span className="notif-dot" />}
         </button>
 
         <button className="notif-btn" title="Help" onClick={() => setPanel(panel === "help" ? null : "help")}>
@@ -118,7 +135,7 @@ export default function Topbar() {
       </div>
       {panel && <div className="topbar-popover">
         <div className="popover-header"><strong>{panel === "notifications" ? "Notifications" : "Help centre"}</strong><button type="button" onClick={() => setPanel(null)} aria-label="Close"><X size={14} /></button></div>
-        {panel === "notifications" ? <><div className="popover-item"><span className="notif-indicator danger" /><div><strong>Invoice mismatch requires review</strong><small>INV-S-2026-00882 · 2 min ago</small></div></div><div className="popover-item"><span className="notif-indicator warning" /><div><strong>Inventory shortfall projected</strong><small>PROD-0441 · 18 min ago</small></div></div><div className="popover-footer">12 open exceptions across the platform</div></> : <><p className="popover-copy">Need help with a workflow?</p><button className="btn btn-secondary btn-sm" onClick={() => setPanel(null)}>Contact platform support</button></>}
+        {panel === "notifications" ? <>{workflowNotifications.length > 0 ? workflowNotifications.map((notification) => <div className="popover-item workflow-notification" key={notification.id}><button type="button" className="workflow-notification-link" onClick={() => { setPanel(null); router.push(notification.href); }}><span className={`notif-indicator ${notification.tone}`} /><span><strong>{notification.title}</strong><small>{notification.detail}</small></span></button><button type="button" className="notification-dismiss" aria-label={`Dismiss ${notification.title}`} onClick={() => dismissNotification(notification.id)}><X size={12} /></button></div>) : <div className="popover-copy">You’re all caught up. No workflow reminders need your attention.</div>}<div className="popover-footer">{workflowNotifications.length} active workflow reminder{workflowNotifications.length === 1 ? "" : "s"}</div></> : <><p className="popover-copy">Need help with a workflow?</p><button className="btn btn-secondary btn-sm" onClick={() => setPanel(null)}>Contact platform support</button></>}
       </div>}
       {commandOpen && <div className="command-backdrop" role="presentation" onClick={() => setCommandOpen(false)}>
         <div className="command-palette" role="dialog" aria-modal="true" aria-label="Command search" onClick={(event) => event.stopPropagation()}>
