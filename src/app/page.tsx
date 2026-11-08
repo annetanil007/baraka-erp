@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import AnalyticsCharts from "@/components/intelligence/AnalyticsCharts";
+import OwnerDecisionOS from "@/components/intelligence/OwnerDecisionOS";
 import { getDashboardData } from "@/lib/dashboard-data";
 import CommandTrigger from "@/components/shared/CommandTrigger";
 
@@ -65,6 +66,8 @@ export default async function DashboardPage() {
       <section className="action-grid">
         {actions.map((action) => <Link className="action-card" href={action.href} key={action.title}><div className={`action-icon ${action.tone}`}><action.icon size={16} /></div><div className="action-content"><strong>{action.title}</strong><span>{action.detail}</span><b>{action.label} <ArrowUpRight size={12} /></b></div></Link>)}
       </section>
+
+      <OwnerDecisionOS data={dashboardData} />
 
       <div className="owner-main-grid">
         <div className="card">
