@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { formatCurrency } from "@/lib/utils";
-import { Plus, Search, ShieldAlert, FileText, CheckCircle2 } from "lucide-react";
+import { Plus, Search, ShieldAlert, CheckCircle2 } from "lucide-react";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import CustomerCreditRiskDrawer, { CustomerCreditProfile } from "@/components/operations/CustomerCreditRiskDrawer";
 
@@ -53,19 +53,48 @@ const initialCustomers: CustomerCreditProfile[] = [
   },
 ];
 
+function finiteNumber(value: unknown, fallback: number) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function normalizeCustomer(customer: Partial<CustomerCreditProfile>, fallback: CustomerCreditProfile): CustomerCreditProfile {
+  const agingTier = customer.agingTier ?? fallback.agingTier;
+  return {
+    id: typeof customer.id === "string" ? customer.id : fallback.id,
+    name: typeof customer.name === "string" ? customer.name : fallback.name,
+    segment: typeof customer.segment === "string" ? customer.segment : fallback.segment,
+    creditLimit: finiteNumber(customer.creditLimit, fallback.creditLimit),
+    currentBalance: finiteNumber(customer.currentBalance, fallback.currentBalance),
+    overdueBalance: finiteNumber(customer.overdueBalance, fallback.overdueBalance),
+    avgPaymentDays: finiteNumber(customer.avgPaymentDays, fallback.avgPaymentDays),
+    agingTier: {
+      current: finiteNumber(agingTier.current, fallback.agingTier.current),
+      tier30to60: finiteNumber(agingTier.tier30to60, fallback.agingTier.tier30to60),
+      tier60to90: finiteNumber(agingTier.tier60to90, fallback.agingTier.tier60to90),
+      tierOver90: finiteNumber(agingTier.tierOver90, fallback.agingTier.tierOver90),
+    },
+    creditHoldActive: customer.creditHoldActive === true,
+  };
+}
+
 export default function CustomersPage() {
   const [customers, setCustomers] = useLocalStorage("baraka:customers", initialCustomers);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerCreditProfile | null>(null);
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState("");
 
-  const filtered = customers.filter((c) =>
+  const safeCustomers = customers.map((customer, index) => normalizeCustomer(customer, initialCustomers[index] ?? initialCustomers[0]));
+  const filtered = safeCustomers.filter((c) =>
     c.name.toLowerCase().includes(query.toLowerCase()) || c.id.toLowerCase().includes(query.toLowerCase())
   );
 
   const toggleHold = (customerId: string, nextStatus: boolean) => {
     setCustomers((current) =>
-      current.map((c) => (c.id === customerId ? { ...c, creditHoldActive: nextStatus } : c))
+      current.map((c, index) => {
+        const safeCustomer = normalizeCustomer(c, initialCustomers[index] ?? initialCustomers[0]);
+        return safeCustomer.id === customerId ? { ...safeCustomer, creditHoldActive: nextStatus } : safeCustomer;
+      })
     );
     if (selectedCustomer?.id === customerId) {
       setSelectedCustomer((c) => (c ? { ...c, creditHoldActive: nextStatus } : null));
@@ -106,21 +135,21 @@ export default function CustomersPage() {
         <div className="kpi-card">
           <div className="kpi-label">Total Outstanding AR</div>
           <div className="kpi-value">
-            {formatCurrency(customers.reduce((acc, c) => acc + c.currentBalance, 0))}
+            {formatCurrency(safeCustomers.reduce((acc, c) => acc + c.currentBalance, 0))}
           </div>
           <div className="kpi-sub">Across all branches</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-label">Overdue Aging Debt</div>
           <div className="kpi-value" style={{ color: "var(--color-danger)" }}>
-            {formatCurrency(customers.reduce((acc, c) => acc + c.overdueBalance, 0))}
+            {formatCurrency(safeCustomers.reduce((acc, c) => acc + c.overdueBalance, 0))}
           </div>
           <div className="kpi-sub kpi-trend-down">Breaching 30-day terms</div>
         </div>
         <div className="kpi-card">
           <div className="kpi-label">Credit Holds Active</div>
           <div className="kpi-value" style={{ color: "var(--color-warning)" }}>
-            {customers.filter((c) => c.creditHoldActive).length} Accounts
+            {safeCustomers.filter((c) => c.creditHoldActive).length} Accounts
           </div>
           <div className="kpi-sub">Shipments locked</div>
         </div>
@@ -180,7 +209,7 @@ export default function CustomersPage() {
                     <button
                       type="button"
                       className="btn btn-secondary btn-sm"
-                      onClick={() => setSelectedCustomer(c)}
+                      onClick={() => setSelectedCustomer(normalizeCustomer(c, initialCustomers.find((item) => item.id === c.id) ?? initialCustomers[0]))}
                     >
                       <ShieldAlert size={12} /> Credit Risk & SOA
                     </button>
