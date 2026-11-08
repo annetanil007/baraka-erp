@@ -85,7 +85,7 @@ export default function SmartOrderIngestionDrawer({
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: "min(740px, 95vw)", maxHeight: "90vh", overflowY: "auto" }}
+        style={{ width: "min(740px, 95vw)" }}
       >
         <div className="dialog-header">
           <div>

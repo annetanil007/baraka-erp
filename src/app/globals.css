@@ -565,6 +565,8 @@ select.form-input { cursor: pointer; }
 .dialog-header { padding: 16px 20px; border-bottom: 1px solid var(--color-border); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .dialog-body { display: flex; flex-direction: column; gap: 14px; padding: 20px; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.smart-ingestion-drawer { display: flex; flex-direction: column; max-height: calc(100vh - 40px); overflow: hidden; }
+.smart-ingestion-drawer .dialog-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .scanner-card { margin-bottom: 20px; padding: 20px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
 .scanner-intro { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .scanner-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: var(--color-accent); background: var(--color-primary-light); border-radius: var(--radius-md); }
