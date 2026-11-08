@@ -592,6 +592,10 @@ select.form-input { cursor: pointer; }
 .dispatch-modal { display: flex; flex-direction: column; width: min(820px, 95vw); height: min(90dvh, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); overflow: hidden; }
 .dispatch-modal .dialog-header { flex: 0 0 auto; position: relative; z-index: 2; background: var(--color-surface); }
 .dispatch-modal .dialog-body { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; }
+.credit-risk-backdrop { height: 100dvh; }
+.isolated-drawer { display: flex; flex-direction: column; width: min(720px, 95vw); height: min(90dvh, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); overflow: hidden; }
+.isolated-drawer .dialog-header { flex: 0 0 auto; position: relative; z-index: 2; background: var(--color-surface); }
+.isolated-drawer .dialog-body { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; }
 .smart-ingestion-drawer { display: flex; flex-direction: column; width: min(740px, 95vw); height: min(90dvh, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); margin: 0 auto; overflow: hidden; }
 .smart-ingestion-backdrop { align-items: flex-start; height: 100dvh; padding: 20px; }
 .smart-ingestion-drawer .dialog-header { position: relative; z-index: 2; flex: 0 0 auto; background: var(--color-surface); }

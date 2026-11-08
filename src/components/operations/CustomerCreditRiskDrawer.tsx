@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatCurrency } from "@/lib/utils";
 import {
   ShieldAlert,
@@ -54,14 +55,27 @@ export default function CustomerCreditRiskDrawer({
     setTimeout(() => setCopied(false), 2500);
   };
 
-  return (
-    <div className="dialog-backdrop" role="presentation" onClick={onClose}>
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousDocumentOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousDocumentOverflow;
+    };
+  }, []);
+
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="dialog-backdrop credit-risk-backdrop" role="presentation" onClick={onClose}>
       <div
-        className="dialog credit-risk-drawer"
+        className="dialog credit-risk-drawer isolated-drawer"
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: "min(720px, 95vw)", maxHeight: "90vh", overflowY: "auto" }}
+        style={{ width: "min(720px, 95vw)" }}
       >
         <div className="dialog-header">
           <div>
@@ -204,7 +218,7 @@ export default function CustomerCreditRiskDrawer({
                 className="btn btn-primary btn-sm"
                 onClick={() => setStatementSent(true)}
               >
-                <Send size={12} /> {statementSent ? "Notice Sent via API" : "Send Formal Demand Notice"}
+                <Send size={12} /> {statementSent ? "Notice Prepared" : "Prepare Demand Notice"}
               </button>
             </div>
           </div>
@@ -216,6 +230,7 @@ export default function CustomerCreditRiskDrawer({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
