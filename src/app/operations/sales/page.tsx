@@ -5,9 +5,9 @@ import { mockSalesOrders } from "@/lib/mock-data";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { Plus, AlertCircle, BookOpen, Eye, CheckCircle, MessageSquare, Send } from "lucide-react";
 import { useLocalStorage } from "@/lib/useLocalStorage";
-import JournalEntryModal, { JournalLine } from "@/components/JournalEntryModal";
-import SmartOrderIngestionDrawer from "@/components/SmartOrderIngestionDrawer";
-import TransactionDispatchModal, { DispatchParty } from "@/components/TransactionDispatchModal";
+import JournalEntryModal, { JournalLine } from "@/components/finance/JournalEntryModal";
+import SmartOrderIngestionDrawer from "@/components/operations/SmartOrderIngestionDrawer";
+import TransactionDispatchModal, { DispatchParty } from "@/components/operations/TransactionDispatchModal";
 import { getWhatsAppNumber, defaultWhatsAppDirectory } from "@/lib/whatsapp-directory";
 
 const RISK_CLASS: Record<string, string> = {

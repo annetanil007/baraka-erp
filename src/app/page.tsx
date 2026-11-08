@@ -5,9 +5,9 @@ import {
   CreditCard, ExternalLink, PackageCheck, Sparkles, WalletCards,
 } from "lucide-react";
 import Link from "next/link";
-import AnalyticsCharts from "@/components/AnalyticsCharts";
+import AnalyticsCharts from "@/components/intelligence/AnalyticsCharts";
 import { getDashboardData } from "@/lib/dashboard-data";
-import CommandTrigger from "@/components/CommandTrigger";
+import CommandTrigger from "@/components/shared/CommandTrigger";
 
 const PRIORITY_COLOR: Record<string, string> = {
   Critical: "critical", High: "high", Medium: "medium", Low: "low",

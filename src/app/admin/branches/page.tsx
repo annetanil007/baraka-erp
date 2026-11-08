@@ -1,6 +1,6 @@
 import { mockBranches } from "@/lib/mock-data";
 import { Building2, Plus } from "lucide-react";
-import ActionButton from "@/components/ActionButton";
+import ActionButton from "@/components/shared/ActionButton";
 
 export default function BranchesPage() {
   return (

@@ -3,7 +3,7 @@ import { formatCurrency, formatDateTime } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
-import ExceptionActions from "@/components/ExceptionActions";
+import ExceptionActions from "@/components/control/ExceptionActions";
 
 export default async function ExceptionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

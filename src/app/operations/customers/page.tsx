@@ -4,7 +4,7 @@ import { useState } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { Plus, Search, ShieldAlert, FileText, CheckCircle2 } from "lucide-react";
 import { useLocalStorage } from "@/lib/useLocalStorage";
-import CustomerCreditRiskDrawer, { CustomerCreditProfile } from "@/components/CustomerCreditRiskDrawer";
+import CustomerCreditRiskDrawer, { CustomerCreditProfile } from "@/components/operations/CustomerCreditRiskDrawer";
 
 const initialCustomers: CustomerCreditProfile[] = [
   {

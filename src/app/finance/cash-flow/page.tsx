@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ArrowDownRight, ArrowUpRight, CalendarClock, CircleDollarSign, Download, ShieldCheck, WalletCards } from "lucide-react";
 import Link from "next/link";
-import SafeToPayOptimizer from "@/components/SafeToPayOptimizer";
+import SafeToPayOptimizer from "@/components/finance/SafeToPayOptimizer";
 
 const forecast = [
   { week: "This week", opening: 842, inflow: 286, outflow: 198, closing: 930 },

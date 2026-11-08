@@ -4,7 +4,7 @@ import { useState } from "react";
 import { mockPurchaseOrders } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
 import { GitMerge, AlertCircle, Landmark } from "lucide-react";
-import BankReconciliationEngine from "@/components/BankReconciliationEngine";
+import BankReconciliationEngine from "@/components/finance/BankReconciliationEngine";
 
 export default function ReconciliationPage() {
   const [activeTab, setActiveTab] = useState<"bank" | "procurement">("bank");

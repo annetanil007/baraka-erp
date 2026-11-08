@@ -1,6 +1,6 @@
 import { mockExceptions } from "@/lib/mock-data";
 import Link from "next/link";
-import ActionButton from "@/components/ActionButton";
+import ActionButton from "@/components/shared/ActionButton";
 
 export default function ReviewsPage() {
   const underReview = mockExceptions.filter((e) => e.status === "Under Review" || e.status === "Monitoring");

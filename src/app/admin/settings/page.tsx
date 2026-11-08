@@ -1,5 +1,5 @@
-import ModulePage from "@/components/ModulePage";
-import EnterpriseControls from "@/components/EnterpriseControls";
+import ModulePage from "@/components/shared/ModulePage";
+import EnterpriseControls from "@/components/platform/EnterpriseControls";
 
 export default function Page() {
   return (

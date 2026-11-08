@@ -5,7 +5,7 @@ import { mockPurchaseOrders } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
 import { Plus, Send, CheckCircle, Eye, Split, MessageSquare, Mail } from "lucide-react";
 import { useLocalStorage } from "@/lib/useLocalStorage";
-import TransactionDispatchModal, { DispatchParty } from "@/components/TransactionDispatchModal";
+import TransactionDispatchModal, { DispatchParty } from "@/components/operations/TransactionDispatchModal";
 import { defaultWhatsAppDirectory } from "@/lib/whatsapp-directory";
 
 export default function PurchaseOrdersPage() {

@@ -1,4 +1,4 @@
-import ModulePage from "@/components/ModulePage";
+import ModulePage from "@/components/shared/ModulePage";
 
 export default function Page() {
   return (

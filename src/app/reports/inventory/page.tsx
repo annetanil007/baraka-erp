@@ -1,5 +1,5 @@
-import ModulePage from "@/components/ModulePage";
-import ReportCharts from "@/components/ReportCharts";
+import ModulePage from "@/components/shared/ModulePage";
+import ReportCharts from "@/components/intelligence/ReportCharts";
 
 export default function Page() {
   return (

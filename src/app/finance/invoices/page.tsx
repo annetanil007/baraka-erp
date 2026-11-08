@@ -4,10 +4,10 @@ import { useState } from "react";
 import { mockInvoices } from "@/lib/mock-data";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { Plus, AlertCircle, Split, BookOpen, CheckCircle, Eye } from "lucide-react";
-import BillScanner from "@/components/BillScanner";
+import BillScanner from "@/components/operations/BillScanner";
 import { useLocalStorage } from "@/lib/useLocalStorage";
-import ThreeWayMatchDrawer, { MatchRecord } from "@/components/ThreeWayMatchDrawer";
-import JournalEntryModal, { JournalLine } from "@/components/JournalEntryModal";
+import ThreeWayMatchDrawer, { MatchRecord } from "@/components/operations/ThreeWayMatchDrawer";
+import JournalEntryModal, { JournalLine } from "@/components/finance/JournalEntryModal";
 
 const RISK_CLASS: Record<string, string> = {
   Critical: "priority-critical", High: "priority-high",

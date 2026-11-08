@@ -8,7 +8,7 @@ import {
   LayoutDashboard, ShoppingCart, DollarSign, BarChart2, Settings,
   Shield, ChevronDown, TrendingUp,
 } from "lucide-react";
-import { useLanguage } from "@/components/LanguageProvider";
+import { useLanguage } from "@/components/shared/LanguageProvider";
 import { createClient } from "@/lib/supabase/client";
 
 type NavItem = {

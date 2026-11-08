@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import ReportCharts from "@/components/ReportCharts";
-import WorkingCapitalAnalytics from "@/components/WorkingCapitalAnalytics";
-import VatAuditSummary from "@/components/VatAuditSummary";
+import ReportCharts from "@/components/intelligence/ReportCharts";
+import WorkingCapitalAnalytics from "@/components/finance/WorkingCapitalAnalytics";
+import VatAuditSummary from "@/components/finance/VatAuditSummary";
 import { Download, FileText, Landmark, ShieldCheck } from "lucide-react";
 
 export default function FinancialReportsPage() {

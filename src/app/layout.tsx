@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
-import Topbar from "@/components/Topbar";
-import { LanguageProvider } from "@/components/LanguageProvider";
+import Sidebar from "@/components/layout/Sidebar";
+import Topbar from "@/components/layout/Topbar";
+import { LanguageProvider } from "@/components/shared/LanguageProvider";
 
 export const metadata: Metadata = {
   title: "Baraka | Enterprise Operations Platform",

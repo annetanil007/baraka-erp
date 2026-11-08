@@ -2,7 +2,7 @@ import { mockExceptions } from "@/lib/mock-data";
 import { formatDateTime } from "@/lib/utils";
 import Link from "next/link";
 import { Filter, Download } from "lucide-react";
-import ActionButton from "@/components/ActionButton";
+import ActionButton from "@/components/shared/ActionButton";
 
 const PRIORITY_CLASS: Record<string, string> = {
   Critical: "priority-critical", High: "priority-high",

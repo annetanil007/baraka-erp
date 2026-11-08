@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { mockInventory } from "@/lib/mock-data";
 import { AlertTriangle, TrendingDown, ArrowRightLeft, Plus } from "lucide-react";
 import { useLocalStorage } from "@/lib/useLocalStorage";
-import ActionButton from "@/components/ActionButton";
+import ActionButton from "@/components/shared/ActionButton";
 
 const STATUS_CLASS: Record<string, string> = {
   OK: "badge-success",

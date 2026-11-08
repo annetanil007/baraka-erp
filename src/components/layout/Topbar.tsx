@@ -3,7 +3,7 @@
 import { Bell, Search, HelpCircle, X, Languages, ArrowRight, FilePlus2, BarChart3, Boxes, UsersRound, WalletCards, Plus, Download, Clock3 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useLanguage } from "@/components/LanguageProvider";
+import { useLanguage } from "@/components/shared/LanguageProvider";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import { mockApprovals } from "@/lib/mock-data";
 
