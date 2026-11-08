@@ -7,8 +7,8 @@ import { Plus, AlertCircle, BookOpen, Eye, CheckCircle, MessageSquare, Send } fr
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import JournalEntryModal, { JournalLine } from "@/components/JournalEntryModal";
 import SmartOrderIngestionDrawer from "@/components/SmartOrderIngestionDrawer";
-import WhatsAppDispatchModal, { WhatsAppRecipient } from "@/components/WhatsAppDispatchModal";
-import { getWhatsAppNumber } from "@/lib/whatsapp-directory";
+import TransactionDispatchModal, { DispatchParty } from "@/components/TransactionDispatchModal";
+import { getWhatsAppNumber, defaultWhatsAppDirectory } from "@/lib/whatsapp-directory";
 
 const RISK_CLASS: Record<string, string> = {
   High: "priority-high", Medium: "priority-medium", Low: "priority-low",
@@ -24,7 +24,7 @@ export default function SalesPage() {
   const [selectedOrder, setSelectedOrder] = useState<typeof mockSalesOrders[number] | null>(null);
   const [smartIngestOpen, setSmartIngestOpen] = useState(false);
   const [journalModal, setJournalModal] = useState<{ reference: string; lines: JournalLine[]; description: string } | null>(null);
-  const [whatsAppDispatch, setWhatsAppDispatch] = useState<{ order: typeof mockSalesOrders[number]; recipients: WhatsAppRecipient[] } | null>(null);
+  const [dispatchModal, setDispatchModal] = useState<{ reference: string; parties: DispatchParty[] } | null>(null);
   const [notification, setNotification] = useState("");
 
   const flagged = orders.filter((o) => o.riskLevel === "Medium" || o.riskLevel === "High");
@@ -54,27 +54,42 @@ export default function SalesPage() {
       current.map((o) => (o.id === order.id ? { ...o, status: "Approved" } : o))
     );
 
-    const clientPhone = getWhatsAppNumber(order.customer, "+971501234567");
-    const warehousePhone = getWhatsAppNumber("Main Warehouse", "+971501112233");
+    const clientContact = defaultWhatsAppDirectory.find((c) => c.name.toLowerCase().includes(order.customer.toLowerCase())) || {
+      phone: "+971501234567",
+      email: "orders@falcon.ae",
+    };
+    const warehouseContact = defaultWhatsAppDirectory.find((c) => c.type === "Branch") || {
+      phone: "+971501112233",
+      email: "logistics@baraka.ae",
+    };
 
-    // Prepare multi-party dispatch
-    const recipients: WhatsAppRecipient[] = [
+    const netAmount = Math.round(order.amount / 1.05);
+    const vatAmount = order.amount - netAmount;
+
+    // Build Formal Multi-Party Parties
+    const parties: DispatchParty[] = [
       {
         role: "Client",
         name: order.customer,
-        phone: clientPhone,
-        message: `*Baraka Enterprise Order Confirmation*\n\nDear ${order.customer},\nYour Order *${order.id}* has been officially authorized.\n\n*Amount:* AED ${order.amount.toLocaleString()}\n*Items:* ${order.items} SKU(s)\n*Delivery:* Estimated within 48 hours\n\nThank you for choosing Baraka.`,
+        phone: clientContact.phone,
+        email: clientContact.email,
+        whatsAppText: `*BARAKA HOLDING | OFFICIAL ORDER CONFIRMATION*\n\nDear Commercial Department,\n\nWe hereby confirm authorized execution of Sales Order *${order.id}* for *${order.customer}*.\n\n*Financial Summary:*\n• Subtotal (Excl. VAT): AED ${netAmount.toLocaleString()}\n• Standard VAT (5%): AED ${vatAmount.toLocaleString()}\n• *Total Contract Value: AED ${order.amount.toLocaleString()}*\n\n*Logistics:*\n• Scope: ${order.items} Line Item(s)\n• Staging: Jebel Ali Central Distribution Depot\n• Fulfillment Window: Within 48 Hours\n\n*Tax Registration:*\nTRN: 100294827100003\n\nKind regards,\nCommercial Sales & Order Administration\nBaraka Enterprise Management`,
+        emailSubject: `OFFICIAL ORDER CONFIRMATION: Commercial Sales Order ${order.id} — Baraka Holding`,
+        emailBody: `Dear Procurement & Finance Team,\n\nRE: OFFICIAL COMMERCIAL SALES ORDER CONFIRMATION — REF: ${order.id}\n\nWe have the honor to confirm that Commercial Sales Order ${order.id} has been formally authorized and released for warehouse fulfillment.\n\nCOMMERCIAL & TAX BREAKDOWN:\n=======================================================\nClient Account:      ${order.customer}\nSales Order Ref:     ${order.id}\nDate of Issue:       ${new Date().toLocaleDateString("en-GB")}\nCurrency:            United Arab Emirates Dirham (AED)\n\nNet Commercial Sum:  AED ${netAmount.toLocaleString()}\nStandard VAT (5%):   AED ${vatAmount.toLocaleString()}\nTotal Payable Value: AED ${order.amount.toLocaleString()}\nTax Registration:    TRN 100294827100003\nPayment Terms:       Agreed Commercial Credit Terms\n=======================================================\n\nFULFILLMENT & DISPATCH ADVICE:\nYour consignment is scheduled for release from the Jebel Ali Central Hub within 48 business hours. Delivery notes and electronic tax invoices will accompany the shipment.\n\nShould you require consignment tracking or documentation amendments, please contact our logistics team.\n\nSincerely,\n\nCommercial Director\nBaraka Holding Group\nDubai, United Arab Emirates\nEmail: commercial@baraka.ae | Web: baraka-erp.vercel.app`,
       },
       {
         role: "Warehouse",
-        name: "Jebel Ali Main Distribution Hub",
-        phone: warehousePhone,
-        message: `*Warehouse Loading & Pick-List Notice*\n\nSales Order *${order.id}* is APPROVED for dispatch.\n*Client:* ${order.customer}\n*Value:* AED ${order.amount.toLocaleString()}\n\nPlease verify stock staging and generate Gate Pass.`,
+        name: "Main Jebel Ali Distribution Hub",
+        phone: warehouseContact.phone,
+        email: warehouseContact.email,
+        whatsAppText: `*BARAKA WAREHOUSE DISPATCH & LOADING DIRECTIVE*\n\nDirective Ref: *DISP-${order.id}*\nAuthorized Order: *${order.id}*\nConsignee: *${order.customer}*\nAuthorized Total: *AED ${order.amount.toLocaleString()}*\n\nAction: Initiate stock picking and staging. Issue Gate Pass upon driver arrival.`,
+        emailSubject: `WAREHOUSE DIRECTIVE: Picking, Staging & Dispatch Authorization — Order ${order.id}`,
+        emailBody: `To: Duty Warehouse Manager & Dispatch Supervisors\nFrom: Commercial Operations Control\nSubject: Warehouse Dispatch Directive — Order ${order.id}\n\nPlease be advised that Sales Order ${order.id} for account ${order.customer} has cleared commercial risk and credit control authorization.\n\nEXECUTION INSTRUCTIONS:\n1. Pull staged inventory as per Order SKU Schedule.\n2. Verify batch numbers and inspection seals.\n3. Prepare dual-copy Delivery Advice and verify commercial Gate Pass.\n\nAuthorized Value: AED ${order.amount.toLocaleString()}\nPriority: Standard Express Dispatch (48hr SLA)\n\nOperations Control Desk\nBaraka Enterprise Management`,
       },
     ];
 
-    setWhatsAppDispatch({ order, recipients });
-    setNotification(`Order ${order.id} authorized! WhatsApp multi-party dispatch queued.`);
+    setDispatchModal({ reference: order.id, parties });
+    setNotification(`Order ${order.id} authorized. Formal WhatsApp and Corporate Email notices ready.`);
   };
 
   const handleSmartOrderCreated = (order: { customer: string; amount: number; items: number }) => {
@@ -115,9 +130,9 @@ export default function SalesPage() {
     <div>
       <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h2 className="page-title">Commercial Sales Orders & RFQ Ingestion</h2>
+          <h2 className="page-title">Commercial Sales Orders & Multi-Channel Dispatch</h2>
           <p className="page-description">
-            Zero-entry WhatsApp/PDF order ingestion, automated WhatsApp order confirmations, and double-entry GL posting.
+            Zero-entry WhatsApp ingestion, formal corporate email confirmations, and automated double-entry GL posting.
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -195,9 +210,9 @@ export default function SalesPage() {
                           className="btn btn-primary btn-sm"
                           style={{ background: "#25D366", color: "#fff", border: "none" }}
                           onClick={() => authorizeOrder(o)}
-                          title="Authorize Order & Auto-Dispatch WhatsApp to Client and Warehouse"
+                          title="Authorize Order & Open Formal Multi-Channel Dispatch (WhatsApp + Email)"
                         >
-                          <Send size={11} /> Authorize & WhatsApp
+                          <Send size={11} /> Authorize & Dispatch
                         </button>
                       )}
                       <button
@@ -224,16 +239,16 @@ export default function SalesPage() {
         </div>
       </div>
 
-      {/* WhatsApp Multi-Party Dispatch Modal */}
-      {whatsAppDispatch && (
-        <WhatsAppDispatchModal
+      {/* Multi-Channel Formal Dispatch Modal */}
+      {dispatchModal && (
+        <TransactionDispatchModal
           transactionType="Sales Order"
-          reference={whatsAppDispatch.order.id}
-          recipients={whatsAppDispatch.recipients}
-          onClose={() => setWhatsAppDispatch(null)}
+          reference={dispatchModal.reference}
+          parties={dispatchModal.parties}
+          onClose={() => setDispatchModal(null)}
           onDispatched={() => {
-            setNotification(`All WhatsApp transaction dispatches sent for ${whatsAppDispatch.order.id}.`);
-            setWhatsAppDispatch(null);
+            setNotification(`Formal multi-channel dispatches executed for Order ${dispatchModal.reference}.`);
+            setDispatchModal(null);
           }}
         />
       )}
