@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatCurrency } from "@/lib/utils";
 import {
   MessageSquare,
@@ -79,14 +80,27 @@ export default function WhatsAppDispatchModal({
     if (onDispatched) onDispatched();
   };
 
-  return (
-    <div className="dialog-backdrop" role="presentation" onClick={onClose}>
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousDocumentOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousDocumentOverflow;
+    };
+  }, []);
+
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="dialog-backdrop dispatch-backdrop" role="presentation" onClick={onClose}>
       <div
-        className="dialog whatsapp-modal"
+        className="dialog dispatch-modal whatsapp-modal"
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: "min(720px, 95vw)", maxHeight: "90vh", overflowY: "auto" }}
+        style={{ width: "min(720px, 95vw)" }}
       >
         <div className="dialog-header">
           <div>
@@ -200,6 +214,7 @@ export default function WhatsAppDispatchModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

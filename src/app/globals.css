@@ -565,6 +565,10 @@ select.form-input { cursor: pointer; }
 .dialog-header { padding: 16px 20px; border-bottom: 1px solid var(--color-border); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .dialog-body { display: flex; flex-direction: column; gap: 14px; padding: 20px; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.dispatch-backdrop { height: 100dvh; }
+.dispatch-modal { display: flex; flex-direction: column; width: min(820px, 95vw); height: min(90dvh, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); overflow: hidden; }
+.dispatch-modal .dialog-header { flex: 0 0 auto; position: relative; z-index: 2; background: var(--color-surface); }
+.dispatch-modal .dialog-body { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; }
 .smart-ingestion-drawer { display: flex; flex-direction: column; width: min(740px, 95vw); height: min(90dvh, calc(100dvh - 40px)); max-height: calc(100dvh - 40px); margin: 0 auto; overflow: hidden; }
 .smart-ingestion-backdrop { align-items: flex-start; height: 100dvh; padding: 20px; }
 .smart-ingestion-drawer .dialog-header { position: relative; z-index: 2; flex: 0 0 auto; background: var(--color-surface); }
