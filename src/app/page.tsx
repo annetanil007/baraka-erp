@@ -7,6 +7,7 @@ import {
 import Link from "next/link";
 import AnalyticsCharts from "@/components/intelligence/AnalyticsCharts";
 import OwnerDecisionOS from "@/components/intelligence/OwnerDecisionOS";
+import OwnerGreeting from "@/components/intelligence/OwnerGreeting";
 import { getDashboardData } from "@/lib/dashboard-data";
 import CommandTrigger from "@/components/shared/CommandTrigger";
 
@@ -38,7 +39,7 @@ export default async function DashboardPage() {
       <section className="owner-hero">
         <div>
           <div className="eyebrow"><Sparkles size={13} /> Owner command center</div>
-          <h2 className="page-title">Good morning, Finance Manager</h2>
+          <OwnerGreeting name={dashboardData.viewer.name} role={dashboardData.viewer.role} />
           <p className="page-description">Here&apos;s what deserves your attention across Baraka today.</p>
         </div>
         <div className="owner-hero-actions">

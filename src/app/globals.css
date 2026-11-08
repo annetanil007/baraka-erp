@@ -507,6 +507,7 @@ select.form-input { cursor: pointer; }
 .mini-bars i:nth-child(1) { height: 35%; }.mini-bars i:nth-child(2) { height: 55%; }.mini-bars i:nth-child(3) { height: 45%; }.mini-bars i:nth-child(4) { height: 72%; }.mini-bars i:nth-child(5) { height: 60%; }.mini-bars i:nth-child(6) { height: 82%; }.mini-bars i:nth-child(7) { height: 100%; }
 .owner-section-heading { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 12px; }
 .owner-section-heading h3 { margin-top: 4px; font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+.owner-role { color: var(--color-text-secondary); font-size: .62em; font-weight: 500; letter-spacing: 0; }
 .decision-os { margin-bottom: 24px; }
 .decision-os-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid var(--color-border); }
 .decision-os-title { display: flex; align-items: flex-start; gap: 11px; }

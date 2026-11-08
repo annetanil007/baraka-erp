@@ -7,6 +7,10 @@ type ProductRow = { id: string; name: string; stock: number; minimum_stock: numb
 
 export type DashboardData = {
   source: "demo" | "supabase";
+  viewer: {
+    name: string;
+    role: string;
+  };
   todaysRevenue: number;
   revenueChange: number;
   receivablesDue: number;
@@ -24,6 +28,10 @@ function dayStart(offsetDays = 0) {
 export async function getDashboardData(): Promise<DashboardData> {
   const fallbackData: DashboardData = {
     source: "demo",
+    viewer: {
+      name: "Sara Al Rashidi",
+      role: "Finance Manager",
+    },
     todaysRevenue: mockKPIs.todaysRevenue,
     revenueChange: mockKPIs.revenueChange,
     receivablesDue: 682000,
@@ -37,14 +45,17 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   try {
     const supabase = await createClient();
-    const [todayResult, yesterdayResult, customersResult, productsResult] = await Promise.all([
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) return fallbackData;
+    const [profileResult, todayResult, yesterdayResult, customersResult, productsResult] = await Promise.all([
+      supabase.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle(),
       supabase.from("sales_orders").select("amount, status, created_at").gte("created_at", dayStart()),
       supabase.from("sales_orders").select("amount, status, created_at").gte("created_at", dayStart(1)).lt("created_at", dayStart()),
       supabase.from("customers").select("balance"),
       supabase.from("products").select("id, name, stock, minimum_stock, unit").order("stock", { ascending: true }).limit(50),
     ]);
 
-    const firstError = [todayResult.error, yesterdayResult.error, customersResult.error, productsResult.error].find(Boolean);
+    const firstError = [profileResult.error, todayResult.error, yesterdayResult.error, customersResult.error, productsResult.error].find(Boolean);
     if (firstError) {
       console.warn("Falling back to demo data due to Supabase query error:", firstError.message);
       return fallbackData;
@@ -76,6 +87,10 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     return {
       source: "supabase",
+      viewer: {
+        name: profileResult.data?.full_name || user.user_metadata?.full_name || user.email || "Team member",
+        role: profileResult.data?.role || user.user_metadata?.role || "Operations Employee",
+      },
       todaysRevenue,
       revenueChange,
       receivablesDue: ((customersResult.data as CustomerRow[]) || []).reduce((total, row) => total + Number(row.balance ?? 0), 0),
