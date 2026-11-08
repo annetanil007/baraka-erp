@@ -98,8 +98,12 @@ export default function Sidebar() {
   const router = useRouter();
   const { language } = useLanguage();
   const signOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch {
+      // Safe fallback if Supabase is unconfigured
+    }
     router.push("/login");
   };
   const label = (value: string) => language === "ar" ? ARABIC_LABELS[value] || value : value;

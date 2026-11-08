@@ -22,58 +22,68 @@ function dayStart(offsetDays = 0) {
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
-  if (process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
-    return {
-      source: "demo",
-      todaysRevenue: mockKPIs.todaysRevenue,
-      revenueChange: mockKPIs.revenueChange,
-      receivablesDue: 682000,
-      inventoryAlerts: mockKPIs.inventoryAlerts,
-      stockWatch: mockInventory.filter((item) => item.status !== "OK").slice(0, 3),
-    };
+  const fallbackData: DashboardData = {
+    source: "demo",
+    todaysRevenue: mockKPIs.todaysRevenue,
+    revenueChange: mockKPIs.revenueChange,
+    receivablesDue: 682000,
+    inventoryAlerts: mockKPIs.inventoryAlerts,
+    stockWatch: mockInventory.filter((item) => item.status !== "OK").slice(0, 3),
+  };
+
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
+    return fallbackData;
   }
 
-  const supabase = await createClient();
-  const [todayResult, yesterdayResult, customersResult, productsResult] = await Promise.all([
-    supabase.from("sales_orders").select("amount, status, created_at").gte("created_at", dayStart()),
-    supabase.from("sales_orders").select("amount, status, created_at").gte("created_at", dayStart(1)).lt("created_at", dayStart()),
-    supabase.from("customers").select("balance"),
-    supabase.from("products").select("id, name, stock, minimum_stock, unit").order("stock", { ascending: true }).limit(50),
-  ]);
+  try {
+    const supabase = await createClient();
+    const [todayResult, yesterdayResult, customersResult, productsResult] = await Promise.all([
+      supabase.from("sales_orders").select("amount, status, created_at").gte("created_at", dayStart()),
+      supabase.from("sales_orders").select("amount, status, created_at").gte("created_at", dayStart(1)).lt("created_at", dayStart()),
+      supabase.from("customers").select("balance"),
+      supabase.from("products").select("id, name, stock, minimum_stock, unit").order("stock", { ascending: true }).limit(50),
+    ]);
 
-  const firstError = [todayResult.error, yesterdayResult.error, customersResult.error, productsResult.error].find(Boolean);
-  if (firstError) throw new Error(`Unable to load dashboard metrics: ${firstError.message}`);
+    const firstError = [todayResult.error, yesterdayResult.error, customersResult.error, productsResult.error].find(Boolean);
+    if (firstError) {
+      console.warn("Falling back to demo data due to Supabase query error:", firstError.message);
+      return fallbackData;
+    }
 
-  const approvedRevenue = (rows: SalesOrderRow[] | null) => (rows ?? [])
-    .filter((row) => row.status === "Approved")
-    .reduce((total, row) => total + Number(row.amount ?? 0), 0);
-  const todaysRevenue = approvedRevenue(todayResult.data as SalesOrderRow[]);
-  const yesterdayRevenue = approvedRevenue(yesterdayResult.data as SalesOrderRow[]);
-  const revenueChange = yesterdayRevenue === 0 ? 0 : Number((((todaysRevenue - yesterdayRevenue) / yesterdayRevenue) * 100).toFixed(1));
-  const products = (productsResult.data as ProductRow[]).map((product) => ({
-    id: product.id,
-    name: product.name,
-    category: "General",
-    sku: product.id,
-    oemNumber: "—",
-    barcode: "—",
-    fitment: "—",
-    stock: Number(product.stock),
-    minStock: Number(product.minimum_stock),
-    unit: product.unit,
-    branch: "All branches",
-    avgDailyDemand: 0,
-    supplierLeadDays: 0,
-    status: Number(product.stock) <= Number(product.minimum_stock) ? "Low Stock" : "OK",
-    daysUntilShortfall: null,
-  })) as typeof mockInventory;
+    const approvedRevenue = (rows: SalesOrderRow[] | null) => (rows ?? [])
+      .filter((row) => row.status === "Approved")
+      .reduce((total, row) => total + Number(row.amount ?? 0), 0);
+    const todaysRevenue = approvedRevenue(todayResult.data as SalesOrderRow[]);
+    const yesterdayRevenue = approvedRevenue(yesterdayResult.data as SalesOrderRow[]);
+    const revenueChange = yesterdayRevenue === 0 ? 0 : Number((((todaysRevenue - yesterdayRevenue) / yesterdayRevenue) * 100).toFixed(1));
+    const products = ((productsResult.data as ProductRow[]) || []).map((product) => ({
+      id: product.id,
+      name: product.name,
+      category: "General",
+      sku: product.id,
+      oemNumber: "—",
+      barcode: "—",
+      fitment: "—",
+      stock: Number(product.stock),
+      minStock: Number(product.minimum_stock),
+      unit: product.unit,
+      branch: "All branches",
+      avgDailyDemand: 0,
+      supplierLeadDays: 0,
+      status: Number(product.stock) <= Number(product.minimum_stock) ? "Low Stock" : "OK",
+      daysUntilShortfall: null,
+    })) as typeof mockInventory;
 
-  return {
-    source: "supabase",
-    todaysRevenue,
-    revenueChange,
-    receivablesDue: (customersResult.data as CustomerRow[]).reduce((total, row) => total + Number(row.balance ?? 0), 0),
-    inventoryAlerts: products.filter((product) => product.status !== "OK").length,
-    stockWatch: products.filter((product) => product.status !== "OK").slice(0, 3),
-  };
+    return {
+      source: "supabase",
+      todaysRevenue,
+      revenueChange,
+      receivablesDue: ((customersResult.data as CustomerRow[]) || []).reduce((total, row) => total + Number(row.balance ?? 0), 0),
+      inventoryAlerts: products.filter((product) => product.status !== "OK").length,
+      stockWatch: products.filter((product) => product.status !== "OK").slice(0, 3),
+    };
+  } catch (error) {
+    console.warn("Falling back to demo data due to Supabase initialization error:", error);
+    return fallbackData;
+  }
 }
