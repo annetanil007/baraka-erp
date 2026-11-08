@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { defaultWhatsAppDirectory, DirectoryContact } from "@/lib/whatsapp-directory";
 import { useLocalStorage } from "@/lib/useLocalStorage";
-import { MessageSquare, Plus, Search, Edit2, Phone, CheckCircle2, Send } from "lucide-react";
+import { MessageSquare, Plus, Search, Edit2, Phone, CheckCircle2, Send, Mail } from "lucide-react";
 
 export default function WhatsAppDirectoryPage() {
   const [contacts, setContacts] = useLocalStorage<DirectoryContact[]>(
@@ -59,6 +59,11 @@ export default function WhatsAppDirectoryPage() {
       `Hello ${c.name}, this is a test notification from the Baraka Enterprise Management System. WhatsApp transaction dispatches are active for your account.`
     );
     window.open(`https://wa.me/${cleanPhone}?text=${text}`, "_blank");
+  };
+  const sendTestEmail = (c: DirectoryContact) => {
+    const subject = encodeURIComponent("Formal Baraka communication channel test");
+    const body = encodeURIComponent(`Dear ${c.name},\n\nThis is a formal test notification from Baraka Enterprise Management. Corporate email dispatches are active for your account.\n\nRegards,\nBaraka Operations Control`);
+    window.open(`mailto:${c.email}?subject=${subject}&body=${body}`, "_blank");
   };
 
   return (
@@ -204,6 +209,7 @@ export default function WhatsAppDirectoryPage() {
                       >
                         <Send size={12} style={{ color: "#25D366" }} /> Test Ping
                       </button>
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => sendTestEmail(c)} title="Open formal test email"><Mail size={12} style={{ color: "var(--color-accent)" }} /> Test Email</button>
                       <button
                         type="button"
                         className="btn btn-secondary btn-sm"

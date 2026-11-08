@@ -4,6 +4,7 @@ import { useState } from "react";
 import { formatCurrency } from "@/lib/utils";
 import {
   MessageSquare,
+  Mail,
   CheckCircle2,
   ExternalLink,
   Copy,
@@ -19,7 +20,10 @@ export type WhatsAppRecipient = {
   role: "Client" | "Vendor" | "Branch Manager" | "Warehouse";
   name: string;
   phone: string;
+  email?: string;
   message: string;
+  emailSubject?: string;
+  emailBody?: string;
   status?: "Ready" | "Sent" | "Queued";
 };
 
@@ -39,6 +43,7 @@ export default function WhatsAppDispatchModal({
   const [activeList, setActiveList] = useState<WhatsAppRecipient[]>(
     recipients.map((r) => ({ ...r, status: "Ready" }))
   );
+  const [activeChannel, setActiveChannel] = useState<"whatsapp" | "email">("whatsapp");
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const sendDirectViaWhatsApp = (recipient: WhatsAppRecipient, index: number) => {
@@ -54,6 +59,13 @@ export default function WhatsAppDispatchModal({
     setActiveList((current) =>
       current.map((item, idx) => (idx === index ? { ...item, status: "Sent" } : item))
     );
+  };
+  const sendViaEmail = (recipient: WhatsAppRecipient, index: number) => {
+    if (!recipient.email) return;
+    const subject = encodeURIComponent(recipient.emailSubject || `Formal ${transactionType} Notice — ${reference}`);
+    const body = encodeURIComponent(recipient.emailBody || recipient.message.replace(/\*/g, ""));
+    window.open(`mailto:${recipient.email}?subject=${subject}&body=${body}`, "_blank");
+    setActiveList((current) => current.map((item, idx) => idx === index ? { ...item, status: "Sent" } : item));
   };
 
   const copyMessage = (text: string, index: number) => {
@@ -79,11 +91,11 @@ export default function WhatsAppDispatchModal({
         <div className="dialog-header">
           <div>
             <div className="card-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <MessageSquare size={17} style={{ color: "#25D366" }} />
-              WhatsApp Automated Transaction Dispatch
+              {activeChannel === "whatsapp" ? <MessageSquare size={17} style={{ color: "#25D366" }} /> : <Mail size={17} style={{ color: "var(--color-accent)" }} />}
+              Formal Multi-Channel Transaction Dispatch
             </div>
             <div className="card-subtitle">
-              Authorized {transactionType} <span className="mono-cell">{reference}</span> — multi-party notifications
+              Authorized {transactionType} <span className="mono-cell">{reference}</span> — formal multi-party notifications
             </div>
           </div>
           <button type="button" className="btn btn-ghost btn-sm" onClick={onClose} aria-label="Close">
@@ -93,11 +105,12 @@ export default function WhatsAppDispatchModal({
 
         <div className="dialog-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ background: "var(--color-surface-muted)", padding: "10px 14px", borderRadius: "var(--radius-md)", fontSize: 12.5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ color: "var(--color-text-secondary)" }}>
-              Upon transaction approval, official document digests are queued for instant WhatsApp dispatch.
-            </span>
+            <div style={{ display: "flex", gap: 7 }}>
+              <button type="button" className={`btn btn-sm ${activeChannel === "whatsapp" ? "btn-primary" : "btn-secondary"}`} style={activeChannel === "whatsapp" ? { background: "#25D366", color: "#fff", border: "none" } : undefined} onClick={() => setActiveChannel("whatsapp")}><MessageSquare size={13} /> WhatsApp</button>
+              <button type="button" className={`btn btn-sm ${activeChannel === "email" ? "btn-primary" : "btn-secondary"}`} onClick={() => setActiveChannel("email")}><Mail size={13} /> Corporate Email</button>
+            </div>
             <span className="badge badge-success" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-              <CheckCircle2 size={12} /> WhatsApp Business API Ready
+              <CheckCircle2 size={12} /> {activeChannel === "whatsapp" ? "WhatsApp handoff ready" : "Email handoff ready"}
             </span>
           </div>
 
@@ -134,12 +147,12 @@ export default function WhatsAppDispatchModal({
                     <button
                       type="button"
                       className="btn btn-secondary btn-sm"
-                      onClick={() => copyMessage(rec.message, index)}
+                      onClick={() => copyMessage(activeChannel === "whatsapp" ? rec.message : (rec.emailBody || rec.message.replace(/\*/g, "")), index)}
                       title="Copy message text"
                     >
                       <Copy size={12} /> {copiedIndex === index ? "Copied" : "Copy"}
                     </button>
-                    <button
+                    {activeChannel === "whatsapp" ? <button
                       type="button"
                       className="btn btn-sm"
                       style={{
@@ -153,7 +166,7 @@ export default function WhatsAppDispatchModal({
                     >
                       {rec.status === "Sent" ? <CheckCircle2 size={13} /> : <Send size={13} />}
                       {rec.status === "Sent" ? "Sent via WhatsApp" : "Send WhatsApp"}
-                    </button>
+                    </button> : <button type="button" className="btn btn-primary btn-sm" onClick={() => sendViaEmail(rec, index)}><Mail size={13} /> {rec.status === "Sent" ? "Email Opened" : "Open Corporate Email"}</button>}
                   </div>
                 </div>
 
@@ -171,7 +184,7 @@ export default function WhatsAppDispatchModal({
                     margin: 0,
                   }}
                 >
-                  {rec.message}
+                  {activeChannel === "whatsapp" ? rec.message : (rec.emailBody || rec.message.replace(/\*/g, ""))}
                 </pre>
               </div>
             ))}
