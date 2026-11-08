@@ -79,7 +79,7 @@ export default function SmartOrderIngestionDrawer({
   };
 
   return (
-    <div className="dialog-backdrop" role="presentation" onClick={onClose}>
+    <div className="dialog-backdrop smart-ingestion-backdrop" role="presentation" onClick={onClose}>
       <div
         className="dialog smart-ingestion-drawer"
         role="dialog"
