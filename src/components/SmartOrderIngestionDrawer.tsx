@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { formatCurrency } from "@/lib/utils";
 import {
   MessageSquare,
@@ -78,7 +79,10 @@ export default function SmartOrderIngestionDrawer({
     });
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <>
     <div className="dialog-backdrop smart-ingestion-backdrop" role="presentation" onClick={onClose}>
       <div
         className="dialog smart-ingestion-drawer"
@@ -204,5 +208,7 @@ export default function SmartOrderIngestionDrawer({
         </div>
       </div>
     </div>
+    </>,
+    document.body
   );
 }
