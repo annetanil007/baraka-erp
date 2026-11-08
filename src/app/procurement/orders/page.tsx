@@ -50,7 +50,7 @@ export default function PurchaseOrdersPage() {
     ];
 
     setDispatchModal({ reference: po.id, parties });
-    setNotification(`Purchase Order ${po.id} authorized. Formal Multi-Channel notices generated.`);
+    setNotification(`Purchase Order ${po.id} authorized. WhatsApp and Corporate Email notices generated.`);
   };
 
   return (
@@ -67,7 +67,7 @@ export default function PurchaseOrdersPage() {
         </button>
       </div>
 
-      {notification && (
+      {notification && !dispatchModal && (
         <div className="toast" role="status">
           <CheckCircle size={15} /> {notification}
           <button type="button" onClick={() => setNotification("")}>Dismiss</button>

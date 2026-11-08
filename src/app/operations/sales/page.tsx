@@ -89,7 +89,7 @@ export default function SalesPage() {
     ];
 
     setDispatchModal({ reference: order.id, parties });
-    setNotification(`Order ${order.id} authorized. Formal WhatsApp and Corporate Email notices ready.`);
+    setNotification(`Order ${order.id} authorized. WhatsApp and Corporate Email notices ready.`);
   };
 
   const handleSmartOrderCreated = (order: { customer: string; amount: number; items: number }) => {
@@ -153,7 +153,7 @@ export default function SalesPage() {
         </div>
       </div>
 
-      {notification && (
+      {notification && !dispatchModal && (
         <div className="toast" role="status">
           <CheckCircle size={15} /> {notification}
           <button type="button" onClick={() => setNotification("")}>Dismiss</button>
