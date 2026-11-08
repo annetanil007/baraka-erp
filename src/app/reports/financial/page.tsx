@@ -1,11 +1,81 @@
-import ModulePage from "@/components/ModulePage";
-import ReportCharts from "@/components/ReportCharts";
+"use client";
 
-export default function Page() {
+import { useState } from "react";
+import ReportCharts from "@/components/ReportCharts";
+import WorkingCapitalAnalytics from "@/components/WorkingCapitalAnalytics";
+import VatAuditSummary from "@/components/VatAuditSummary";
+import { Download, FileText, Landmark, ShieldCheck } from "lucide-react";
+
+export default function FinancialReportsPage() {
+  const [activeTab, setActiveTab] = useState<"working_capital" | "overview" | "vat">("working_capital");
+
   return (
     <div>
-      <ReportCharts variant="financial" />
-      <ModulePage title="Financial Reports" description="Revenue, expenditure, payment and budget reports." actionLabel="Build report" stats={[{ label: "Revenue YTD", value: "AED 14.8M", tone: "success" }, { label: "Gross margin", value: "31.4%" }, { label: "Outstanding AR", value: "AED 1.26M", tone: "warning" }, { label: "Cash position", value: "AED 842K" }]} columns={[{ key: "id", label: "Report", mono: true }, { key: "name", label: "Report name" }, { key: "period", label: "Period" }, { key: "amount", label: "Total", numeric: true }, { key: "owner", label: "Owner" }, { key: "status", label: "Status" }]} rows={[{ id: "RPT-FIN-09", name: "Management P&L", period: "Aug 2026", amount: "AED 1.84M", owner: "Finance", status: "Completed" }, { id: "RPT-FIN-08", name: "Cash flow forecast", period: "Sep 2026", amount: "AED 842K", owner: "Finance", status: "Scheduled" }, { id: "RPT-FIN-07", name: "Accounts receivable aging", period: "Aug 2026", amount: "AED 1.26M", owner: "Finance", status: "Completed" }]} />
+      <div className="page-header module-header">
+        <div>
+          <div className="eyebrow" style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--color-primary)" }}>
+            <ShieldCheck size={13} /> Institutional Financial Management
+          </div>
+          <h2 className="page-title">Financial Intelligence & Compliance</h2>
+          <p className="page-description">
+            CFO-level cash conversion velocity, automated VAT 201 sub-ledger, and working capital optimization.
+          </p>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button type="button" className="btn btn-secondary btn-sm">
+            <Download size={13} /> Export Financial Package (Excel)
+          </button>
+        </div>
+      </div>
+
+      {/* Institutional Navigation Tabs */}
+      <div style={{ display: "flex", gap: 6, borderBottom: "1px solid var(--color-border)", marginBottom: 20 }}>
+        <button
+          type="button"
+          className={`sidebar-item ${activeTab === "working_capital" ? "active" : ""}`}
+          style={{ width: "auto", borderRadius: "var(--radius-md) var(--radius-md) 0 0", padding: "8px 16px", color: activeTab === "working_capital" ? "#fff" : "var(--color-text-secondary)" }}
+          onClick={() => setActiveTab("working_capital")}
+        >
+          Working Capital & Cash Conversion Cycle (CCC)
+        </button>
+        <button
+          type="button"
+          className={`sidebar-item ${activeTab === "vat" ? "active" : ""}`}
+          style={{ width: "auto", borderRadius: "var(--radius-md) var(--radius-md) 0 0", padding: "8px 16px", color: activeTab === "vat" ? "#fff" : "var(--color-text-secondary)" }}
+          onClick={() => setActiveTab("vat")}
+        >
+          VAT Return & Tax Audit (Form 201)
+        </button>
+        <button
+          type="button"
+          className={`sidebar-item ${activeTab === "overview" ? "active" : ""}`}
+          style={{ width: "auto", borderRadius: "var(--radius-md) var(--radius-md) 0 0", padding: "8px 16px", color: activeTab === "overview" ? "#fff" : "var(--color-text-secondary)" }}
+          onClick={() => setActiveTab("overview")}
+        >
+          P&L / Operating Performance
+        </button>
+      </div>
+
+      {/* Tab 1: Working Capital & CCC Engine */}
+      {activeTab === "working_capital" && (
+        <div>
+          <WorkingCapitalAnalytics />
+        </div>
+      )}
+
+      {/* Tab 2: VAT Form 201 Engine */}
+      {activeTab === "vat" && (
+        <div>
+          <VatAuditSummary />
+        </div>
+      )}
+
+      {/* Tab 3: Overview Charts */}
+      {activeTab === "overview" && (
+        <div>
+          <ReportCharts variant="financial" />
+        </div>
+      )}
     </div>
   );
 }
