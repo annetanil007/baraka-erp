@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { mockSalesOrders } from "@/lib/mock-data";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
-import { Plus, AlertCircle, BookOpen, Eye, CheckCircle } from "lucide-react";
+import { Plus, AlertCircle, BookOpen, Eye, CheckCircle, MessageSquare } from "lucide-react";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import JournalEntryModal, { JournalLine } from "@/components/JournalEntryModal";
+import SmartOrderIngestionDrawer from "@/components/SmartOrderIngestionDrawer";
 
 const RISK_CLASS: Record<string, string> = {
   High: "priority-high", Medium: "priority-medium", Low: "priority-low",
@@ -19,6 +20,7 @@ export default function SalesPage() {
   const [orders, setOrders] = useLocalStorage("baraka:sales-orders", mockSalesOrders);
   const [dialog, setDialog] = useState<"create" | "view" | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<typeof mockSalesOrders[number] | null>(null);
+  const [smartIngestOpen, setSmartIngestOpen] = useState(false);
   const [journalModal, setJournalModal] = useState<{ reference: string; lines: JournalLine[]; description: string } | null>(null);
   const [notification, setNotification] = useState("");
 
@@ -38,10 +40,28 @@ export default function SalesPage() {
     setNotification(`Sales Order ${newId} created and passed through automated credit validation.`);
   };
 
+  const handleSmartOrderCreated = (order: { customer: string; amount: number; items: number }) => {
+    const newId = `ORD-2026-${String(1204 + orders.length).padStart(5, "0")}`;
+    setOrders((current) => [
+      {
+        id: newId,
+        customer: order.customer,
+        amount: order.amount,
+        items: order.items,
+        status: "Approved",
+        riskLevel: "Low",
+        createdAt: new Date().toISOString(),
+      },
+      ...current,
+    ]);
+    setSmartIngestOpen(false);
+    setNotification(`Sales Order ${newId} generated directly from WhatsApp RFQ with 100% stock verification.`);
+  };
+
   const previewGL = (order: typeof mockSalesOrders[number]) => {
     const netRevenue = Math.round(order.amount / 1.05);
     const vatOutput = order.amount - netRevenue;
-    const estimatedCOGS = Math.round(netRevenue * 0.65); // standard 65% cost-to-retail ratio
+    const estimatedCOGS = Math.round(netRevenue * 0.65);
 
     setJournalModal({
       reference: order.id,
@@ -58,12 +78,29 @@ export default function SalesPage() {
 
   return (
     <div>
-      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h2 className="page-title">Sales Orders & Commercial Revenue</h2>
-          <p className="page-description">Commercial orders with real-time risk evaluation and automated general ledger posting.</p>
+          <h2 className="page-title">Commercial Sales Orders & RFQ Ingestion</h2>
+          <p className="page-description">
+            Zero-entry WhatsApp/PDF order ingestion, real-time credit validation, and automated double-entry GL posting.
+          </p>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={() => setDialog("create")}><Plus size={13} /> New Order</button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setSmartIngestOpen(true)}
+          >
+            <MessageSquare size={13} style={{ color: "var(--color-success)" }} /> WhatsApp / RFQ Ingest
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => setDialog("create")}
+          >
+            <Plus size={13} /> New Order
+          </button>
+        </div>
       </div>
 
       {notification && (
@@ -140,6 +177,14 @@ export default function SalesPage() {
           </table>
         </div>
       </div>
+
+      {/* Smart Order Ingestion Drawer */}
+      {smartIngestOpen && (
+        <SmartOrderIngestionDrawer
+          onClose={() => setSmartIngestOpen(false)}
+          onOrderCreated={handleSmartOrderCreated}
+        />
+      )}
 
       {/* Detail or Create Modal */}
       {dialog && (
