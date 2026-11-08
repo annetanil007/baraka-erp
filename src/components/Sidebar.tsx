@@ -88,6 +88,7 @@ const NAV: NavItem[] = [
       { label: "Users", href: "/admin/users" },
       { label: "Roles & Permissions", href: "/admin/roles" },
       { label: "Branches", href: "/admin/branches" },
+      { label: "WhatsApp Directory", href: "/admin/whatsapp" },
       { label: "System Settings", href: "/admin/settings" },
     ],
   },

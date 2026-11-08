@@ -35,6 +35,7 @@ const BREADCRUMB_MAP: Record<string, string[]> = {
   "/admin/users": ["Administration", "Users"],
   "/admin/roles": ["Administration", "Roles & Permissions"],
   "/admin/branches": ["Administration", "Branches"],
+  "/admin/whatsapp": ["Administration", "WhatsApp Directory"],
   "/admin/settings": ["Administration", "System Settings"],
 };
 

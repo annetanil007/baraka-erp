@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { mockSalesOrders } from "@/lib/mock-data";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
-import { Plus, AlertCircle, BookOpen, Eye, CheckCircle, MessageSquare } from "lucide-react";
+import { Plus, AlertCircle, BookOpen, Eye, CheckCircle, MessageSquare, Send } from "lucide-react";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import JournalEntryModal, { JournalLine } from "@/components/JournalEntryModal";
 import SmartOrderIngestionDrawer from "@/components/SmartOrderIngestionDrawer";
+import WhatsAppDispatchModal, { WhatsAppRecipient } from "@/components/WhatsAppDispatchModal";
+import { getWhatsAppNumber } from "@/lib/whatsapp-directory";
 
 const RISK_CLASS: Record<string, string> = {
   High: "priority-high", Medium: "priority-medium", Low: "priority-low",
@@ -22,6 +24,7 @@ export default function SalesPage() {
   const [selectedOrder, setSelectedOrder] = useState<typeof mockSalesOrders[number] | null>(null);
   const [smartIngestOpen, setSmartIngestOpen] = useState(false);
   const [journalModal, setJournalModal] = useState<{ reference: string; lines: JournalLine[]; description: string } | null>(null);
+  const [whatsAppDispatch, setWhatsAppDispatch] = useState<{ order: typeof mockSalesOrders[number]; recipients: WhatsAppRecipient[] } | null>(null);
   const [notification, setNotification] = useState("");
 
   const flagged = orders.filter((o) => o.riskLevel === "Medium" || o.riskLevel === "High");
@@ -32,30 +35,62 @@ export default function SalesPage() {
     const customer = String(form.get("customer") || "New customer");
     const amount = Number(form.get("amount") || 0);
     const newId = `ORD-2026-${String(1204 + orders.length).padStart(5, "0")}`;
-    setOrders((current) => [
-      { id: newId, customer, amount, items: 1, status: "Under Review", riskLevel: "Low", createdAt: new Date().toISOString() },
-      ...current,
-    ]);
+    const newOrder = {
+      id: newId,
+      customer,
+      amount,
+      items: 1,
+      status: "Under Review" as const,
+      riskLevel: "Low" as const,
+      createdAt: new Date().toISOString(),
+    };
+    setOrders((current) => [newOrder, ...current]);
     setDialog(null);
     setNotification(`Sales Order ${newId} created and passed through automated credit validation.`);
   };
 
+  const authorizeOrder = (order: typeof mockSalesOrders[number]) => {
+    setOrders((current) =>
+      current.map((o) => (o.id === order.id ? { ...o, status: "Approved" } : o))
+    );
+
+    const clientPhone = getWhatsAppNumber(order.customer, "+971501234567");
+    const warehousePhone = getWhatsAppNumber("Main Warehouse", "+971501112233");
+
+    // Prepare multi-party dispatch
+    const recipients: WhatsAppRecipient[] = [
+      {
+        role: "Client",
+        name: order.customer,
+        phone: clientPhone,
+        message: `*Baraka Enterprise Order Confirmation*\n\nDear ${order.customer},\nYour Order *${order.id}* has been officially authorized.\n\n*Amount:* AED ${order.amount.toLocaleString()}\n*Items:* ${order.items} SKU(s)\n*Delivery:* Estimated within 48 hours\n\nThank you for choosing Baraka.`,
+      },
+      {
+        role: "Warehouse",
+        name: "Jebel Ali Main Distribution Hub",
+        phone: warehousePhone,
+        message: `*Warehouse Loading & Pick-List Notice*\n\nSales Order *${order.id}* is APPROVED for dispatch.\n*Client:* ${order.customer}\n*Value:* AED ${order.amount.toLocaleString()}\n\nPlease verify stock staging and generate Gate Pass.`,
+      },
+    ];
+
+    setWhatsAppDispatch({ order, recipients });
+    setNotification(`Order ${order.id} authorized! WhatsApp multi-party dispatch queued.`);
+  };
+
   const handleSmartOrderCreated = (order: { customer: string; amount: number; items: number }) => {
     const newId = `ORD-2026-${String(1204 + orders.length).padStart(5, "0")}`;
-    setOrders((current) => [
-      {
-        id: newId,
-        customer: order.customer,
-        amount: order.amount,
-        items: order.items,
-        status: "Approved",
-        riskLevel: "Low",
-        createdAt: new Date().toISOString(),
-      },
-      ...current,
-    ]);
+    const created = {
+      id: newId,
+      customer: order.customer,
+      amount: order.amount,
+      items: order.items,
+      status: "Approved" as const,
+      riskLevel: "Low" as const,
+      createdAt: new Date().toISOString(),
+    };
+    setOrders((current) => [created, ...current]);
     setSmartIngestOpen(false);
-    setNotification(`Sales Order ${newId} generated directly from WhatsApp RFQ with 100% stock verification.`);
+    authorizeOrder(created);
   };
 
   const previewGL = (order: typeof mockSalesOrders[number]) => {
@@ -82,7 +117,7 @@ export default function SalesPage() {
         <div>
           <h2 className="page-title">Commercial Sales Orders & RFQ Ingestion</h2>
           <p className="page-description">
-            Zero-entry WhatsApp/PDF order ingestion, real-time credit validation, and automated double-entry GL posting.
+            Zero-entry WhatsApp/PDF order ingestion, automated WhatsApp order confirmations, and double-entry GL posting.
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -91,7 +126,7 @@ export default function SalesPage() {
             className="btn btn-secondary btn-sm"
             onClick={() => setSmartIngestOpen(true)}
           >
-            <MessageSquare size={13} style={{ color: "var(--color-success)" }} /> WhatsApp / RFQ Ingest
+            <MessageSquare size={13} style={{ color: "#25D366" }} /> WhatsApp / RFQ Ingest
           </button>
           <button
             type="button"
@@ -154,6 +189,17 @@ export default function SalesPage() {
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
+                      {o.status !== "Approved" && (
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          style={{ background: "#25D366", color: "#fff", border: "none" }}
+                          onClick={() => authorizeOrder(o)}
+                          title="Authorize Order & Auto-Dispatch WhatsApp to Client and Warehouse"
+                        >
+                          <Send size={11} /> Authorize & WhatsApp
+                        </button>
+                      )}
                       <button
                         type="button"
                         className="btn btn-secondary btn-sm"
@@ -167,7 +213,7 @@ export default function SalesPage() {
                         title="Simulate General Ledger Impact"
                         onClick={() => previewGL(o)}
                       >
-                        <BookOpen size={12} /> GL Impact
+                        <BookOpen size={12} /> GL
                       </button>
                     </div>
                   </td>
@@ -177,6 +223,20 @@ export default function SalesPage() {
           </table>
         </div>
       </div>
+
+      {/* WhatsApp Multi-Party Dispatch Modal */}
+      {whatsAppDispatch && (
+        <WhatsAppDispatchModal
+          transactionType="Sales Order"
+          reference={whatsAppDispatch.order.id}
+          recipients={whatsAppDispatch.recipients}
+          onClose={() => setWhatsAppDispatch(null)}
+          onDispatched={() => {
+            setNotification(`All WhatsApp transaction dispatches sent for ${whatsAppDispatch.order.id}.`);
+            setWhatsAppDispatch(null);
+          }}
+        />
+      )}
 
       {/* Smart Order Ingestion Drawer */}
       {smartIngestOpen && (
