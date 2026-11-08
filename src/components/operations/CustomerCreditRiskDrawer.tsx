@@ -6,10 +6,6 @@ import { formatCurrency } from "@/lib/utils";
 import {
   ShieldAlert,
   Send,
-  AlertTriangle,
-  FileText,
-  Clock,
-  CheckCircle,
   Copy,
   X,
   MessageSquare,
@@ -44,7 +40,9 @@ export default function CustomerCreditRiskDrawer({
   const [copied, setCopied] = useState(false);
   const [statementSent, setStatementSent] = useState(false);
 
-  const utilizationRate = Math.round((customer.currentBalance / customer.creditLimit) * 100);
+  const utilizationRate = customer.creditLimit > 0
+    ? Math.round((customer.currentBalance / customer.creditLimit) * 100)
+    : 0;
 
   // Ready-to-send payment demand message
   const paymentDemandText = `Dear Finance Team at ${customer.name},\n\nThis is an automated Statement of Account notice from Baraka Holding.\n\nYour current outstanding balance is AED ${customer.currentBalance.toLocaleString()}, with AED ${customer.overdueBalance.toLocaleString()} exceeding your agreed 30-day payment terms.\n\nPlease remit payment or provide swift confirmation today to avoid temporary hold on new pending shipments.\n\nThank you,\nFinance & Credit Control Department`;

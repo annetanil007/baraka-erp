@@ -79,7 +79,7 @@ function normalizeCustomer(customer: Partial<CustomerCreditProfile>, fallback: C
 }
 
 export default function CustomersPage() {
-  const [customers, setCustomers] = useLocalStorage("baraka:customers", initialCustomers);
+  const [customers, setCustomers] = useLocalStorage("baraka:customers:v2", initialCustomers);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerCreditProfile | null>(null);
   const [query, setQuery] = useState("");
   const [toast, setToast] = useState("");
