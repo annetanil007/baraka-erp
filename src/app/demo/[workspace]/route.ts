@@ -6,7 +6,8 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ workspace: string }> },
 ) {
-  if (process.env.NEXT_PUBLIC_DEMO_MODE !== "true") {
+  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NODE_ENV !== "production";
+  if (!demoMode) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

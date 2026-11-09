@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next({ request });
-  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NODE_ENV !== "production";
   const demoWorkspace = request.cookies.get("baraka_demo_workspace")?.value;
   const pathname = request.nextUrl.pathname;
 
