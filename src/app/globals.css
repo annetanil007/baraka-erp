@@ -849,6 +849,8 @@ select.form-input { cursor: pointer; }
 .auth-aside::after { content: ""; position: absolute; inset: 0; background: rgba(31, 22, 18, .16); pointer-events: none; }
 .auth-aside::before { content: ""; position: absolute; inset: 12% 8% auto auto; width: 420px; height: 420px; border: 1px solid rgba(239,220,197,.16); border-radius: 50%; box-shadow: 0 0 0 42px rgba(239,220,197,.04), 0 0 0 84px rgba(239,220,197,.03); }
 .auth-aside-content { position: relative; z-index: 1; max-width: 560px; color: #fff; }
+.demo-entry-divider { display: flex; align-items: center; gap: 10px; margin: 16px 0 2px; color: var(--color-text-muted); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.demo-entry-divider::before, .demo-entry-divider::after { content: ""; height: 1px; flex: 1; background: var(--color-border); }
 .auth-aside-content .eyebrow { color: #DDBB91; }
 .auth-aside h2 { max-width: 600px; margin-top: 16px; font-size: clamp(28px, 4vw, 54px); font-weight: 500; line-height: 1.08; letter-spacing: -.025em; }
 .auth-aside p { max-width: 470px; margin-top: 18px; color: rgba(255,255,255,.68); font-size: 14px; }
