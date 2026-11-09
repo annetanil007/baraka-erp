@@ -6,11 +6,6 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ workspace: string }> },
 ) {
-  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NODE_ENV !== "production";
-  if (!demoMode) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
   const { workspace } = await params;
   const destination = workspace === "employee" ? "/employee" : "/";
   if (!WORKSPACES.has(workspace)) {

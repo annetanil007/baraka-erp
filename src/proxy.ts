@@ -7,10 +7,10 @@ export async function proxy(request: NextRequest) {
   const demoWorkspace = request.cookies.get("baraka_demo_workspace")?.value;
   const pathname = request.nextUrl.pathname;
 
-  if (demoMode && pathname.startsWith("/demo/")) {
+  if (pathname.startsWith("/demo/")) {
     return response;
   }
-  if (demoMode && (demoWorkspace === "manager" || demoWorkspace === "employee")) {
+  if (demoWorkspace === "manager" || demoWorkspace === "employee") {
     if (demoWorkspace === "employee") {
       const employeeAllowed = pathname === "/employee"
         || pathname === "/operations/sales"
