@@ -106,6 +106,7 @@ export default function Sidebar() {
     } catch {
       // Safe fallback if Supabase is unconfigured
     }
+    document.cookie = "baraka_demo_workspace=; Max-Age=0; Path=/";
     router.push("/login");
   };
   const label = (value: string) => language === "ar" ? ARABIC_LABELS[value] || value : value;
