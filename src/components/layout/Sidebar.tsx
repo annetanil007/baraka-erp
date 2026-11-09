@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, ShoppingCart, DollarSign, BarChart2, Settings,
-  Shield, ChevronDown, TrendingUp,
+  Shield, ChevronDown, TrendingUp, ClipboardList,
 } from "lucide-react";
 import { useLanguage } from "@/components/shared/LanguageProvider";
 import { createClient } from "@/lib/supabase/client";
@@ -19,7 +19,7 @@ type NavItem = {
 };
 
 const ARABIC_LABELS: Record<string, string> = {
-  Dashboard: "لوحة التحكم", Operations: "العمليات", Sales: "المبيعات", Customers: "العملاء", Inventory: "المخزون", Transfers: "التحويلات",
+  Dashboard: "لوحة التحكم", "Employee Workspace": "مساحة عمل الموظف", Operations: "العمليات", Sales: "المبيعات", Customers: "العملاء", Inventory: "المخزون", Transfers: "التحويلات",
   Procurement: "المشتريات", "Purchase Requests": "طلبات الشراء", "Purchase Orders": "أوامر الشراء", Suppliers: "الموردون", Receiving: "الاستلام",
   Finance: "المالية", Accounts: "الحسابات", Invoices: "الفواتير", Payments: "المدفوعات", Expenses: "المصروفات", "Cash Flow": "التدفق النقدي", "Cost of Goods Sold": "تكلفة البضائع المباعة", Control: "الرقابة",
   Exceptions: "الاستثناءات", Reviews: "المراجعات", Approvals: "الموافقات", Reconciliation: "التسوية", Reports: "التقارير", "Operational Reports": "التقارير التشغيلية",
@@ -28,6 +28,7 @@ const ARABIC_LABELS: Record<string, string> = {
 
 const NAV: NavItem[] = [
   { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Employee Workspace", href: "/employee", icon: ClipboardList },
   {
     label: "Operations",
     icon: TrendingUp,
@@ -124,7 +125,7 @@ export default function Sidebar() {
     <aside className="sidebar">
       {/* Logo */}
       <div className="sidebar-logo">
-        <Link href="/" className="sidebar-brand" aria-label="Baraka home">
+        <Link href={pathname === "/employee" ? "/employee" : "/"} className="sidebar-brand" aria-label="Baraka home">
           <Image src="/baraka-logo.svg" alt="Baraka" width={138} height={46} priority />
         </Link>
       </div>
@@ -193,11 +194,11 @@ export default function Sidebar() {
           display: "flex", alignItems: "center", justifyContent: "center",
           color: "#fff", fontSize: 13, fontWeight: 600, flexShrink: 0,
         }}>
-          FM
+          {pathname === "/employee" ? "AO" : "FM"}
         </div>
         <div>
-          <div style={{ fontSize: 12.5, fontWeight: 500, color: "#fff" }}>Finance Manager</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>Head Office</div>
+          <div style={{ fontSize: 12.5, fontWeight: 500, color: "#fff" }}>{pathname === "/employee" ? "Ahmed Al Mansouri" : "Sara Al Rashidi"}</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{pathname === "/employee" ? "Operations Employee" : "Finance Manager"} · Head Office</div>
         </div>
       </button>
     </aside>

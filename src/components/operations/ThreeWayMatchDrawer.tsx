@@ -42,11 +42,11 @@ export default function ThreeWayMatchDrawer({
   return (
     <div className="dialog-backdrop" role="presentation" onClick={onClose}>
       <div
-        className="dialog match-drawer"
+        className="dialog match-drawer isolated-drawer"
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: "min(780px, 95vw)", maxHeight: "90vh", overflowY: "auto" }}
+        style={{ width: "min(780px, 95vw)" }}
       >
         <div className="dialog-header">
           <div>
@@ -65,7 +65,7 @@ export default function ThreeWayMatchDrawer({
 
         <div className="dialog-body" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Comparison Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          <div className="match-comparison-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
             {/* Purchase Order */}
             <div className="card" style={{ padding: 14, background: "var(--color-surface-muted)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700, color: "var(--color-text-muted)", textTransform: "uppercase" }}>
@@ -160,7 +160,7 @@ export default function ThreeWayMatchDrawer({
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, fontSize: 12.5, background: "var(--color-surface)", padding: 12, borderRadius: "var(--radius-md)" }}>
+            <div className="match-variance-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 14, fontSize: 12.5, background: "var(--color-surface)", padding: 12, borderRadius: "var(--radius-md)" }}>
               <div>
                 <span style={{ color: "var(--color-text-muted)", display: "block", fontSize: 11, textTransform: "uppercase" }}>
                   PPV (Purchase Price Variance)
@@ -192,11 +192,11 @@ export default function ThreeWayMatchDrawer({
           {/* Institutional Resolution Controls */}
           <div>
             <div className="section-heading" style={{ marginBottom: 8 }}>Authorized Remediation Actions</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+            <div className="match-actions-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
               <button
                 type="button"
                 className={`btn ${selectedAction === "credit_note" ? "btn-primary" : "btn-secondary"}`}
-                style={{ height: "auto", padding: "10px 12px", flexDirection: "column", alignItems: "flex-start", textAlign: "left" }}
+                style={{ height: "auto", minWidth: 0, padding: "10px 12px", flexDirection: "column", alignItems: "flex-start", textAlign: "left", whiteSpace: "normal" }}
                 onClick={() => setSelectedAction("credit_note")}
               >
                 <strong style={{ fontSize: 12.5 }}>Hold & Request Credit Note</strong>
@@ -208,7 +208,7 @@ export default function ThreeWayMatchDrawer({
               <button
                 type="button"
                 className={`btn ${selectedAction === "accept_ppv" ? "btn-primary" : "btn-secondary"}`}
-                style={{ height: "auto", padding: "10px 12px", flexDirection: "column", alignItems: "flex-start", textAlign: "left" }}
+                style={{ height: "auto", minWidth: 0, padding: "10px 12px", flexDirection: "column", alignItems: "flex-start", textAlign: "left", whiteSpace: "normal" }}
                 onClick={() => setSelectedAction("accept_ppv")}
               >
                 <strong style={{ fontSize: 12.5 }}>Book to PPV Account</strong>
@@ -220,7 +220,7 @@ export default function ThreeWayMatchDrawer({
               <button
                 type="button"
                 className={`btn ${selectedAction === "partial_pay" ? "btn-primary" : "btn-secondary"}`}
-                style={{ height: "auto", padding: "10px 12px", flexDirection: "column", alignItems: "flex-start", textAlign: "left" }}
+                style={{ height: "auto", minWidth: 0, padding: "10px 12px", flexDirection: "column", alignItems: "flex-start", textAlign: "left", whiteSpace: "normal" }}
                 onClick={() => setSelectedAction("partial_pay")}
               >
                 <strong style={{ fontSize: 12.5 }}>Authorize GRN Match Only</strong>

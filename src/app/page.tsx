@@ -10,6 +10,7 @@ import OwnerDecisionOS from "@/components/intelligence/OwnerDecisionOS";
 import OwnerGreeting from "@/components/intelligence/OwnerGreeting";
 import { getDashboardData } from "@/lib/dashboard-data";
 import CommandTrigger from "@/components/shared/CommandTrigger";
+import { redirect } from "next/navigation";
 
 const PRIORITY_COLOR: Record<string, string> = {
   Critical: "critical", High: "high", Medium: "medium", Low: "low",
@@ -25,6 +26,9 @@ const actions = [
 
 export default async function DashboardPage() {
   const dashboardData = await getDashboardData();
+  const role = dashboardData.viewer.role.toLowerCase();
+  const managerRole = role.includes("manager") || role.includes("admin") || role.includes("owner");
+  if (!managerRole) redirect("/employee");
   const insights = [
     { label: "Gross margin", value: "AED 1.90M", change: "+8.6%", note: "vs. last month", direction: "up" },
     { label: "Capital in inventory", value: "AED 4.26M", change: "AED 184K", note: "slow-moving", direction: "down" },
