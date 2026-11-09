@@ -95,6 +95,32 @@ const NAV: NavItem[] = [
   },
 ];
 
+const EMPLOYEE_NAV: NavItem[] = [
+  { label: "Employee Workspace", href: "/employee", icon: ClipboardList },
+  {
+    label: "Operations",
+    icon: TrendingUp,
+    children: [
+      { label: "Sales", href: "/operations/sales" },
+      { label: "Inventory", href: "/operations/inventory" },
+      { label: "Transfers", href: "/operations/transfers" },
+    ],
+  },
+  {
+    label: "Procurement",
+    icon: ShoppingCart,
+    children: [
+      { label: "Purchase Requests", href: "/procurement/requests" },
+      { label: "Receiving", href: "/procurement/receiving" },
+    ],
+  },
+  {
+    label: "Control",
+    icon: Shield,
+    children: [{ label: "Exceptions", href: "/control/exceptions" }],
+  },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -110,6 +136,7 @@ export default function Sidebar() {
     router.push("/login");
   };
   const label = (value: string) => language === "ar" ? ARABIC_LABELS[value] || value : value;
+  const navigation = pathname === "/employee" ? EMPLOYEE_NAV : NAV;
   const [expanded, setExpanded] = useState<string[]>([]);
 
   const toggle = (label: string) => {
@@ -133,7 +160,7 @@ export default function Sidebar() {
 
       {/* Nav items */}
       <nav style={{ flex: 1, padding: "8px 12px" }}>
-        {NAV.map((item) => {
+        {navigation.map((item) => {
           if (item.href) {
             return (
               <Link

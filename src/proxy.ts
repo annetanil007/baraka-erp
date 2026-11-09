@@ -11,6 +11,19 @@ export async function proxy(request: NextRequest) {
     return response;
   }
   if (demoMode && (demoWorkspace === "manager" || demoWorkspace === "employee")) {
+    if (demoWorkspace === "employee") {
+      const employeeAllowed = pathname === "/employee"
+        || pathname === "/operations/sales"
+        || pathname === "/operations/inventory"
+        || pathname === "/operations/transfers"
+        || pathname === "/procurement/requests"
+        || pathname === "/procurement/receiving"
+        || pathname === "/control/exceptions"
+        || pathname.startsWith("/control/exceptions/");
+      if (!employeeAllowed) {
+        return NextResponse.redirect(new URL("/employee", request.url));
+      }
+    }
     return response;
   }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -72,9 +72,13 @@ export default function Topbar() {
   const [commandOpen, setCommandOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const employeeWorkspace = pathname === "/employee";
   const [approvals] = useLocalStorage("baraka:approvals", mockApprovals);
   const [dismissedNotifications, setDismissedNotifications] = useLocalStorage<string[]>("baraka:dismissed-notifications", []);
-  const filteredCommands = COMMAND_ITEMS.filter((item) => `${item.label} ${item.detail} ${item.keywords ?? ""}`.toLowerCase().includes(query.toLowerCase())).slice(0, 7);
+  const availableCommands = employeeWorkspace
+    ? COMMAND_ITEMS.filter((item) => ["/employee", "/operations/sales", "/operations/inventory", "/operations/transfers", "/procurement/requests", "/procurement/receiving", "/control/exceptions"].includes(item.href ?? "") || item.action === "create")
+    : COMMAND_ITEMS;
+  const filteredCommands = availableCommands.filter((item) => `${item.label} ${item.detail} ${item.keywords ?? ""}`.toLowerCase().includes(query.toLowerCase())).slice(0, 7);
   const notificationCandidates: WorkflowNotification[] = [
     ...approvals.filter((approval) => approval.status === "Pending").slice(0, 3).map<WorkflowNotification>((approval) => ({
       id: `approval-${approval.id}`,
@@ -85,7 +89,7 @@ export default function Topbar() {
     })),
     { id: "inventory-shortfall", title: "Inventory shortfall projected", detail: "PROD-0441 · review reorder plan", href: "/operations/inventory/intelligence", tone: "info" },
   ];
-  const workflowNotifications = notificationCandidates.filter((notification) => !dismissedNotifications.includes(notification.id));
+  const workflowNotifications = notificationCandidates.filter((notification) => !dismissedNotifications.includes(notification.id) && (!employeeWorkspace || notification.href === "/operations/inventory/intelligence"));
   const dismissNotification = (id: string) => setDismissedNotifications((current) => [...current, id]);
   const openCommand = () => { setCommandOpen(true); setQuery(""); setActiveIndex(0); };
   const runCommand = (item: CommandItem) => {
