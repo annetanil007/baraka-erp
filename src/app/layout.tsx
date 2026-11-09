@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Sidebar from "@/components/layout/Sidebar";
-import Topbar from "@/components/layout/Topbar";
+import AppShell from "@/components/layout/AppShell";
 import { LanguageProvider } from "@/components/shared/LanguageProvider";
 
 export const metadata: Metadata = {
@@ -14,13 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <LanguageProvider>
-          <div className="app-shell">
-            <Sidebar />
-            <div className="main-content">
-              <Topbar />
-              <div className="page-body">{children}</div>
-            </div>
-          </div>
+          <AppShell>{children}</AppShell>
         </LanguageProvider>
       </body>
     </html>
